@@ -7,6 +7,7 @@ import '@fontsource/dm-serif-display/latin-400.css';
 import App from './App';
 import './styles.css';
 import './styles/responsive.css';
+import './styles/enhancements.css';
 
 ReactDOM.createRoot(document.getElementById('root')!).render(
   <React.StrictMode>

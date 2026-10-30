@@ -1,7 +1,7 @@
-import { ArrowDown, ArrowUpRight, SearchX, WifiOff } from 'lucide-react';
+import { ArrowDown, ArrowUpRight, Heart, SearchX, WifiOff } from 'lucide-react';
 import { useEffect, useRef, useState } from 'react';
 import type { Product } from '../lib/catalogue';
-import { ProductCard } from './ProductCard';
+import { ProductCard, type ProductActions } from './ProductCard';
 
 interface ProductResultsProps {
   products: Product[];
@@ -10,6 +10,10 @@ interface ProductResultsProps {
   priceError: string | null;
   onReset: () => void;
   onRetry: () => void;
+  actions: ProductActions;
+  view: 'grid' | 'list';
+  emptySaved: boolean;
+  onBrowseAll: () => void;
 }
 
 export function ProductResults({
@@ -19,6 +23,10 @@ export function ProductResults({
   priceError,
   onReset,
   onRetry,
+  actions,
+  view,
+  emptySaved,
+  onBrowseAll,
 }: ProductResultsProps) {
   const [visibleCount, setVisibleCount] = useState(24);
   const progress = useRef<HTMLParagraphElement>(null);
@@ -77,6 +85,23 @@ export function ProductResults({
       </div>
     );
 
+  if (emptySaved)
+    return (
+      <div className="empty-state saved-empty">
+        <span className="state-icon">
+          <Heart size={30} aria-hidden="true" />
+        </span>
+        <h3>Your next favourites belong here.</h3>
+        <p>
+          Tap the heart on a product to keep it in your collection. A good find
+          is worth coming back to.
+        </p>
+        <button className="primary-button" onClick={onBrowseAll}>
+          Browse all products <ArrowUpRight size={16} aria-hidden="true" />
+        </button>
+      </div>
+    );
+
   if (products.length === 0)
     return (
       <div className="empty-state">
@@ -106,12 +131,13 @@ export function ProductResults({
   const visible = products.slice(0, visibleCount);
   return (
     <>
-      <div className="product-grid">
+      <div className={`product-grid ${view === 'list' ? 'product-list' : ''}`}>
         {visible.map((product, index) => (
           <ProductCard
             key={product.id}
             product={product}
             priority={index < 6}
+            actions={actions}
           />
         ))}
       </div>

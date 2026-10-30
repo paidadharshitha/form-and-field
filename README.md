@@ -1,6 +1,6 @@
 # Form & Field
 
-A responsive product catalogue built to help people find the right item quickly. Search, category, and price filters work together, with clear sorting and recovery when no products match.
+A responsive, single-page product catalogue built to help people find the right item quickly. Search and filters work together, while product details, saved finds, and side-by-side comparison help people decide without leaving the page.
 
 **Stack:** React, TypeScript, Vite, CSS, Vitest, and Playwright.
 
@@ -12,6 +12,13 @@ A responsive product catalogue built to help people find the right item quickly.
 ![Desktop catalogue](docs/catalogue-desktop.png)
 
 <img src="docs/catalogue-mobile.png" alt="The catalogue on a phone, with two-column product cards and a filter button" width="300" />
+
+<details>
+<summary>View the product comparison</summary>
+
+![Product comparison with prices, ratings, and availability](docs/catalogue-compare.png)
+
+</details>
 
 ## Run locally
 
@@ -41,14 +48,19 @@ npm run test:e2e
 ## Using the catalogue
 
 - **Search by name:** case-insensitive substring matching; surrounding whitespace is ignored.
-- **Category:** choose one category or browse all products.
+- **Category:** choose one category, browse all products, or use the illustrated category shortcuts. Shortcuts update the category while preserving your other filters.
 - **Price:** optional minimum and maximum prices, including both endpoints. Blank fields leave that end unrestricted. Invalid or reversed ranges show a helpful validation message.
+- **Rating and availability:** narrow the collection to ratings of 4+ or 4.5+, and optionally show only products with stock available.
 - **Sort:** featured order, price low to high or high to low, and rating high to low or low to high. Equal values use product ID as a deterministic tie-breaker. Featured preserves the API's original order.
 - **Combined filters:** every active condition must match. Removing a filter or clearing all filters restores results immediately.
-- **Shareable state:** `q`, `category`, `min`, `max`, and `sort` are reflected in the URL so a filtered view can be bookmarked or shared.
+- **Shareable filters:** `q`, `category`, `min`, `max`, `rating`, `stock`, and `sort` are reflected in the URL. For example, `?rating=4.5&stock=1&sort=price-asc` shows available products rated at least 4.5, cheapest first. Unsupported rating values are ignored.
 - **Progressive display:** 24 matching products appear initially; load more to see the next group. Filtering always searches the full collection, including products not yet displayed.
+- **Grid or list:** switch between image-led cards and a list with product descriptions while keeping the current filters and sort.
+- **Quick view:** open a product's image or title to inspect its description, brand when supplied, price, rating, and availability in a dialog.
+- **Wishlist:** save products using the heart, then open **Saved** to search and filter those finds. Saved IDs stay in this browser and synchronize across tabs.
+- **Comparison:** select up to three products, then choose **Compare** in the floating tray to review their details side by side. Products can be removed or saved from the comparison.
 
-Desktop puts filters in a persistent sidebar. Phones use the same filter controls inside a native dialog, with an explicit close action and keyboard dismissal. Loading, empty results, invalid prices, and request failures each have a distinct state.
+Desktop puts filters in a persistent sidebar. Phones use the same filter controls inside a native dialog, with an explicit close action and keyboard dismissal. Quick view and comparison also stay on the same page. Loading, empty results, an empty wishlist, invalid prices, and request failures each have a distinct state.
 
 ## Decisions and trade-offs
 
@@ -62,13 +74,23 @@ For a few hundred items, a single fetch and a local filter/sort pipeline keep in
 
 React owns the interface state without an additional state-management library. `src/lib/catalogue.ts` contains the shared product types, response validation, category derivation, price validation, and pure filtering/sorting functions. Components render those results rather than duplicating the selection logic. The desktop and mobile interfaces share the same filter component.
 
+Product cards, quick view, category shortcuts, and comparisons reuse `ProductImage`, including its missing-image fallback. Quick view and comparison share a native-dialog wrapper for focus containment, keyboard dismissal, and returning focus when the dialog closes. Price and availability formatting are shared helpers.
+
 External JSON is validated before rendering. Fetch errors are visible and retryable; there is no hardcoded fallback catalogue that could disguise an unavailable data source. Products and images therefore remain dependent on DummyJSON's availability.
+
+### Keep personal choices local
+
+The wishlist stores only product IDs in `localStorage` under `form-field:saved-products:v1`; it does not copy product records or create an account. Stored IDs are validated and deduplicated before use. Corrupt data is handled safely. When browser storage is unavailable or a write fails, saving continues in memory for the current visit and the interface explains that limitation. Saved products do not sync between browsers or devices.
+
+The comparison is intentionally temporary, with a maximum of three products to keep the table readable. It resets on reload. Grid/list selection and the Saved view are also session UI choices; shared URLs preserve filters and sorting, not private saved IDs or comparison selections.
 
 ### Make the catalogue easy to scan
 
-The visual direction pairs warm neutrals and forest green with a serif heading and a restrained sans-serif interface. Product images, names, prices, and ratings lead the card hierarchy. Labels, focus indicators, native form controls, a mobile dialog, and responsive spacing support keyboard and small-screen use. Images load lazily where appropriate, and showing products in groups limits the initial DOM and image workload.
+The visual direction pairs warm neutrals and forest green with a serif heading and a restrained sans-serif interface. Product images, names, prices, and ratings lead the card hierarchy. Category shortcuts provide visual entry points, and the comparison tray appears only when needed. Labels, focus indicators, native form controls, dialogs, and responsive spacing support keyboard and small-screen use. The comparison table scrolls within its own region on phones. Images load lazily where appropriate, and showing products in groups limits the initial DOM and image workload.
 
 Prices use **USD as a display assumption**: the API provides a numeric price without an explicit currency field. Prices are shown directly from the API; the application does not calculate an additional discount.
+
+Quick view shows supplied catalogue metadata. Comparison labels such as **Lowest price** and **Highest rated** describe only the currently selected products, and appear only when there is a unique best value. Missing brands are labeled as unspecified.
 
 ### Stay within the task
 
@@ -76,9 +98,9 @@ This is a catalogue, not a checkout flow. There is no cart, account, payment int
 
 ## Verification
 
-The automated checks focus on behavior: combining filters, inclusive price boundaries, search normalization, deterministic sorting, malformed API data, and the main catalogue interactions. Browser tests exercise the desktop and mobile experience. They use controlled API responses so failures can be reproduced without depending on the live dataset changing.
+The automated checks focus on behavior: combining filters, inclusive price and rating boundaries, availability, search normalization, deterministic sorting, malformed API data, saved-ID validation, and the main catalogue interactions. Browser tests exercise the desktop and mobile experience, including saved products, quick view, comparison, and layout selection. They use controlled API responses so failures can be reproduced without depending on the live dataset changing.
 
-Verified locally: **43 unit tests**, **25 browser tests**, and **2 opt-in live API smoke tests** pass. Automated axe checks found no WCAG A/AA violations on the desktop page, phone page, or phone filter dialog. This is an automated check of those states, not a claim of comprehensive accessibility certification.
+Verified locally: **74 unit tests**, **39 browser tests**, and **2 live API smoke tests** pass. The browser suite includes automated axe checks of the catalogue, filters, quick view, and comparison dialogs against WCAG A/AA rules; these checks report no violations. Automated checks complement keyboard and visual review; they do not constitute comprehensive accessibility certification.
 
 The normal browser run skips the live API tests and the phone-only dialog test on desktop. To run the live smoke checks (which also capture desktop and mobile screenshots):
 
@@ -94,6 +116,9 @@ Useful manual checks:
 4. Open a filtered URL in another tab and confirm the view is restored.
 5. On a phone-sized viewport, open the filters, change a value, close the dialog, and continue browsing.
 6. Block the products request, check the error state, then restore the connection and retry.
+7. Save a product, reload, and confirm it remains in Saved; repeat with storage disabled to check the session-only message.
+8. Compare three products, confirm a fourth cannot be added, then remove one and add another.
+9. Open and close quick view with the keyboard; switch between grid and list while filters are active.
 
 ## Deployment
 

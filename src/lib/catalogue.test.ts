@@ -4,6 +4,7 @@ import {
   filterAndSortProducts,
   formatCategory,
   getCategories,
+  normalizeRatingFilter,
   parseProducts,
   validatePriceRange,
   type Product,
@@ -57,6 +58,87 @@ const products: Product[] = [
 const ids = (items: Product[]) => items.map((item) => item.id);
 
 describe('filterAndSortProducts', () => {
+  it('combines rating and stock with the existing search, category, and price filters', () => {
+    expect(
+      ids(
+        filterAndSortProducts(
+          products,
+          {
+            ...EMPTY_FILTERS,
+            query: 'table',
+            category: 'home-decoration',
+            minPrice: '20',
+            maxPrice: '100',
+            minRating: '4',
+            inStockOnly: true,
+          },
+          'rating-desc',
+        ),
+      ),
+    ).toEqual([3]);
+  });
+
+  it('includes the exact rating threshold and excludes out-of-stock products', () => {
+    const ratedProducts = [
+      { ...products[0], rating: 4.5 },
+      { ...products[1], rating: 4.5 },
+      { ...products[2], rating: 4.49 },
+    ];
+    expect(
+      ids(
+        filterAndSortProducts(
+          ratedProducts,
+          {
+            ...EMPTY_FILTERS,
+            minRating: '4.5',
+          },
+          'featured',
+        ),
+      ),
+    ).toEqual([3, 1]);
+    expect(
+      ids(
+        filterAndSortProducts(
+          ratedProducts,
+          {
+            ...EMPTY_FILTERS,
+            minRating: '4.5',
+            inStockOnly: true,
+          },
+          'featured',
+        ),
+      ),
+    ).toEqual([3]);
+  });
+
+  it('ignores unsupported rating values and keeps optional filters backwards compatible', () => {
+    expect(
+      ids(
+        filterAndSortProducts(
+          products,
+          {
+            query: '',
+            category: '',
+            minPrice: '',
+            maxPrice: '',
+          },
+          'featured',
+        ),
+      ),
+    ).toEqual(ids(products));
+    expect(
+      ids(
+        filterAndSortProducts(
+          products,
+          {
+            ...EMPTY_FILTERS,
+            minRating: 'Infinity',
+          },
+          'featured',
+        ),
+      ),
+    ).toEqual(ids(products));
+  });
   it('combines name, category, inclusive price boundaries, and sorting', () => {
     const result = filterAndSortProducts(
       products,
@@ -159,6 +241,27 @@ describe('filterAndSortProducts', () => {
         ),
       ),
     ).toEqual(ids(products));
+  });
+});
+
+describe('normalizeRatingFilter', () => {
+  it.each(['4', '4.5'] as const)('accepts the supported rating %s', (value) => {
+    expect(normalizeRatingFilter(value)).toBe(value);
+  });
+
+  it.each([
+    undefined,
+    null,
+    '',
+    '0',
+    '-1',
+    '5',
+    '4.0',
+    '4.6',
+    'NaN',
+    'Infinity',
+  ])('ignores unsupported URL rating %s', (value) => {
+    expect(normalizeRatingFilter(value)).toBe('');
   });
 });
 

@@ -35,5 +35,34 @@ test('live API renders products and imagery', async ({ page, isMobile }) => {
   await page.screenshot({
     path: `/tmp/form-field-${isMobile ? 'mobile' : 'desktop'}.png`,
   });
+
+  await cards
+    .first()
+    .getByRole('button', { name: /^View details for / })
+    .click();
+  const quickView = page.getByRole('dialog');
+  await expect(quickView).toBeVisible();
+  await expect(quickView.getByRole('img')).toBeVisible();
+  await page.screenshot({
+    path: `/tmp/form-field-quickview-${isMobile ? 'mobile' : 'desktop'}.png`,
+  });
+  await page.keyboard.press('Escape');
+  await expect(quickView).not.toBeVisible();
+
+  for (let index = 0; index < 2; index += 1) {
+    await cards
+      .nth(index)
+      .getByRole('button', { name: /^Compare / })
+      .click();
+  }
+  await page
+    .getByRole('button', { name: 'Compare products', exact: true })
+    .click();
+  const comparison = page.getByRole('dialog', { name: 'Compare your finds' });
+  await expect(comparison).toBeVisible();
+  await expect(comparison.getByRole('table')).toBeVisible();
+  await page.screenshot({
+    path: `/tmp/form-field-compare-${isMobile ? 'mobile' : 'desktop'}.png`,
+  });
   expect(errors).toEqual([]);
 });

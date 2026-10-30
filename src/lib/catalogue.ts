@@ -18,6 +18,8 @@ export interface Filters {
   category: string;
   minPrice: string;
   maxPrice: string;
+  minRating?: string;
+  inStockOnly?: boolean;
 }
 
 export const EMPTY_FILTERS: Filters = {
@@ -25,7 +27,16 @@ export const EMPTY_FILTERS: Filters = {
   category: '',
   minPrice: '',
   maxPrice: '',
+  minRating: '',
+  inStockOnly: false,
 };
+
+/** Limit URL and UI values to the rating options supported by the catalogue. */
+export function normalizeRatingFilter(
+  value: string | null | undefined,
+): '' | '4' | '4.5' {
+  return value === '4' || value === '4.5' ? value : '';
+}
 
 export interface Category {
   value: string;
@@ -66,7 +77,7 @@ export function validatePriceRange(
   return null;
 }
 
-/** One pipeline keeps search, category, and price filters working together. */
+/** One pipeline applies every active condition before sorting the matches. */
 export function filterAndSortProducts(
   products: readonly Product[],
   filters: Filters,
@@ -75,12 +86,15 @@ export function filterAndSortProducts(
   const query = filters.query.trim().toLowerCase();
   const minimum = readPrice(filters.minPrice);
   const maximum = readPrice(filters.maxPrice);
+  const minimumRating = Number(normalizeRatingFilter(filters.minRating));
   const matches = products.filter(
     (product) =>
       product.title.toLowerCase().includes(query) &&
       (!filters.category || product.category === filters.category) &&
       (minimum === undefined || product.price >= minimum) &&
-      (maximum === undefined || product.price <= maximum),
+      (maximum === undefined || product.price <= maximum) &&
+      product.rating >= minimumRating &&
+      (!filters.inStockOnly || product.stock > 0),
   );
 
   if (sort === 'featured') return matches;

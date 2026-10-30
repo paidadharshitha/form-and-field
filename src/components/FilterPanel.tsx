@@ -134,6 +134,32 @@ export function FilterPanel({
           ))}
         </div>
       </fieldset>
+      <fieldset className="quality-filter">
+        <legend>A few good preferences</legend>
+        <label className="rating-filter-label" htmlFor={`${id}-rating`}>
+          Minimum rating
+        </label>
+        <div className="select-wrap rating-filter-select">
+          <select
+            id={`${id}-rating`}
+            value={filters.minRating || ''}
+            onChange={(event) => onChange('minRating', event.target.value)}
+          >
+            <option value="">Any rating</option>
+            <option value="4">4 stars & up</option>
+            <option value="4.5">4.5 stars & up</option>
+          </select>
+          <ChevronDown size={15} aria-hidden="true" />
+        </div>
+        <label className="stock-filter">
+          <input
+            type="checkbox"
+            checked={Boolean(filters.inStockOnly)}
+            onChange={(event) => onChange('inStockOnly', event.target.checked)}
+          />
+          <span>In stock only</span>
+        </label>
+      </fieldset>
     </div>
   );
 }

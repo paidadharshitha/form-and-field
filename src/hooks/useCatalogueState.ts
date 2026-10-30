@@ -1,5 +1,10 @@
 import { useEffect, useState } from 'react';
-import { EMPTY_FILTERS, type Filters, type SortOption } from '../lib/catalogue';
+import {
+  EMPTY_FILTERS,
+  normalizeRatingFilter,
+  type Filters,
+  type SortOption,
+} from '../lib/catalogue';
 
 const sorts: SortOption[] = [
   'featured',
@@ -18,6 +23,8 @@ function readLocation(): { filters: Filters; sort: SortOption } {
       category: params.get('category') ?? '',
       minPrice: params.get('min') ?? '',
       maxPrice: params.get('max') ?? '',
+      minRating: normalizeRatingFilter(params.get('rating')),
+      inStockOnly: params.get('stock') === '1',
     },
     sort: sorts.find((sort) => sort === candidate) ?? 'featured',
   };
@@ -39,6 +46,8 @@ export function useCatalogueState() {
       category: state.filters.category,
       min: state.filters.minPrice,
       max: state.filters.maxPrice,
+      rating: normalizeRatingFilter(state.filters.minRating),
+      stock: state.filters.inStockOnly ? '1' : '',
       sort: state.sort === 'featured' ? '' : state.sort,
     };
     for (const [key, value] of Object.entries(values)) {

@@ -1,7 +1,11 @@
 # Form & Field
 
-A single-page product catalogue for people who need to find the right item among a few hundred products. Success means search, category, price, and sort combine predictably on phones and laptops.
+A single-page product catalogue for people who need to find the right item among a few hundred products. Success means search, category, price, rating, availability, and sort combine predictably on phones and laptops, with useful detail and comparison tools supporting the decision.
 
 The supplied data source is DummyJSON Products. All product content comes from the live API; no checkout, accounts, or persistence service is required. The user requested a professional finish, readable code, a README, a public GitHub repository, and a deployed link.
+
+The user subsequently requested additional features and a more impressive professional experience while retaining the single-page requirement. The enhanced surface includes product quick view, a wishlist, comparison of up to three products, grid/list layouts, illustrated category shortcuts, and rating/in-stock filters. These tools support finding and evaluating products; no purchase flow is implied.
+
+Filter and sort state is shareable through URL parameters. Saved product IDs persist only in the current browser and synchronize across its tabs, with an in-memory fallback when storage fails. Comparison selections and view preferences are temporary. Quick view and comparison show supplied metadata; missing brands are identified as unspecified.
 
 Stack: React, TypeScript, Vite, plain CSS, Vitest, Playwright. Pricing is displayed in USD, an explicit display assumption because the API has no currency field.
