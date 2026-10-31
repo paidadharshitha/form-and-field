@@ -16,7 +16,7 @@
   gap: 12px;
 }
 .guided-finder-intro > svg {
-  color: var(--green);
+  color: var(--accent);
   flex-shrink: 0;
 }
 .guided-finder-intro p {
@@ -40,7 +40,7 @@
   min-height: 44px;
   padding: 8px 0 8px 12px;
   font-size: 12px;
-  color: var(--green);
+  color: var(--accent);
   white-space: nowrap;
 }
 .guided-finder-toggle:hover {
@@ -81,7 +81,7 @@
   min-height: 44px;
   padding: 10px 12px;
   border: 1px solid var(--line-strong);
-  border-radius: 6px;
+  border-radius: 4px;
   background: var(--paper);
   font-size: 12px;
 }
@@ -119,16 +119,16 @@
   gap: 4px;
   min-height: 58px;
   padding: 12px 16px;
-  border: 1px solid var(--line);
-  border-radius: 8px;
+  border: 1px solid var(--line-strong);
+  border-radius: 4px;
   background: var(--paper);
-  color: var(--green);
+  color: var(--accent);
   text-align: left;
   font-size: 12px;
 }
 .filter-recovery > button:hover {
-  border-color: var(--green);
-  background: var(--soft-green);
+  border-color: var(--accent);
+  background: var(--accent-soft);
 }
 .filter-recovery small {
   color: var(--muted);

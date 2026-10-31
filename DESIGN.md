@@ -1,52 +1,51 @@
 # Form & Field visual system
 
-The user selected a **clean white and cobalt blue** direction. The catalogue uses a bright, precise interface that keeps products and decisions prominent: crisp white surfaces, slate text, cobalt actions, and authentic product photography on pale neutral or blue image backgrounds.
+The user explicitly selected **warm luxury boutique**: cream, charcoal, and refined details. The catalogue pairs an editorial opening with fast product discovery. Warm neutral surfaces, expressive display typography, and authentic product photography create the character; search, filters, prices, and actions remain straightforward.
 
 ## Foundations
 
-| Role             | Token            | Value     |
-| ---------------- | ---------------- | --------- |
-| Canvas           | `--paper`        | `#ffffff` |
-| Primary text     | `--ink`          | `#172033` |
-| Secondary text   | `--muted`        | `#5d697c` |
-| Primary action   | `--accent`       | `#2457e7` |
-| Action hover     | `--accent-hover` | `#1742bd` |
-| Selected surface | `--accent-soft`  | `#edf3ff` |
-| Neutral surface  | `--surface`      | `#f5f7fb` |
-| Image surface    | `--surface-blue` | `#f0f5ff` |
-| Divider          | `--line`         | `#dce3ef` |
-| Control boundary | `--line-strong`  | `#8391a8` |
+| Role                  | Token            | Value     |
+| --------------------- | ---------------- | --------- |
+| Canvas                | `--paper`        | `#f8f4ec` |
+| Primary text          | `--ink`          | `#292621` |
+| Secondary text        | `--muted`        | `#6c6054` |
+| Primary action        | `--accent`       | `#292621` |
+| Action hover          | `--accent-hover` | `#484034` |
+| Selected surface      | `--accent-soft`  | `#e9e1d5` |
+| Product image surface | `--surface`      | `#eee8df` |
+| Quiet surface         | `--surface-soft` | `#f1ece3` |
+| Decorative divider    | `--line`         | `#d9cfc1` |
+| Control boundary      | `--line-strong`  | `#918272` |
 
-The earlier green token names remain compatibility aliases to cobalt; they do not define a second palette. Emerald is reserved for stock availability, amber for rating symbols, and red for errors. Secondary text and action colors maintain at least 4.5:1 contrast on the shared white and pale surfaces.
+Charcoal identifies primary actions and selected states. Muted forest green is reserved for availability, muted brown for rating symbols, and burgundy for errors. Small text maintains at least 4.5:1 contrast on the shared light surfaces; strong control boundaries maintain at least 3:1 against the canvas and image surface. The lighter divider token separates content rather than defining input boundaries.
 
-All typography uses self-hosted **DM Sans**, with 400, 500, and 600 weights. Display and dialog headings use weight 600 and tight but readable tracking. Product names wrap, prices and ratings use tabular numerals, and the interface avoids tiny decorative labels. The brand name remains Form & Field.
+Self-hosted **Cormorant Garamond**, weight 500 with an italic companion, gives display headings their editorial character. **DM Sans**, weights 400, 500, and 600, handles body copy, controls, product names, and numeric information. Product titles keep weight 600 and wrap in full. Prices and ratings use tabular numerals. The brand remains Form & Field.
 
 ## Composition
 
-- A white sticky header holds the compact wordmark, catalogue navigation, and Saved control. Cobalt identifies the active navigation item and action states.
-- The opening headline uses strong sans-serif typography. Illustrated category shortcuts provide direct entry points using actual catalogue product images.
-- Search is the primary full-width discovery control. Suggestions stay attached to it, with real product images and prices, keyboard selection, and clear wording for close matches.
-- Desktop uses a bounded content width, a persistent filter sidebar, and three product columns; large screens can show four columns. Phones keep two columns and place filters in a native dialog.
-- Product cards use a light border and a 12–14px outer radius. Consistent neutral image surfaces give authentic product photography room to breathe, without tinting the images. Catalogue cards prefer the supplied detail photo, recover to the thumbnail on failure, and keep lazy loading.
-- Full product titles lead the card, followed by a quiet brand/category line. A flex layout aligns prices, ratings, and footer controls across different title lengths. Prices carry more visual weight; save and comparison controls have 44px targets. Photo buttons retain a visible arrow affordance on touch screens and a detail label on desktop hover/focus. A selected comparison changes the card boundary to cobalt.
-- List view uses separated rows with readable descriptions. It keeps the same actions and filters without nesting another card around each row.
+- A charcoal header anchors the wordmark, catalogue navigation, and Saved control in cream.
+- The opening uses an asymmetric product stage instead of a row of equally weighted category boxes. Actual catalogue imagery and working category links make the composition useful as well as expressive.
+- The main search sits with the headline. The guided finder is a quieter secondary entry point. Suggestions stay attached to the input, with actual product images and prices, keyboard selection, and clear wording for close matches.
+- The mobile layout gives search priority and compresses the category imagery. Visitors can reach filters and products without scrolling past a large decorative hero.
+- Desktop keeps a bounded content width, persistent filter sidebar, and three product columns; large screens can show four columns. Phones keep two columns and place filters in a native dialog.
+- Product cards have open, borderless bodies. A warm image panel with a 4px radius holds the photo, while a fine line beneath the footer separates products. Related and recently viewed items follow the same open treatment.
+- Full product titles lead each card, followed by a quiet brand/category line. Flex layouts align prices, ratings, and footer controls despite different title lengths. Prices carry more visual weight. Saved and comparison controls retain 44px targets.
+- Photo buttons have a visible arrow affordance on touch screens and a details label on desktop hover or keyboard focus. Comparison selection adds a charcoal outline to the image panel and a pressed button state.
+- List view preserves descriptions, actions, and filters in open rows. Photography, text, and spacing supply structure without enclosing each row in another box.
 
-## Decision tools and details
+## Photography and detail views
 
-The guided finder, recommendation highlights, recovery suggestions, reviews, sharing controls, and undo feedback use the same tokens and type hierarchy. They support the main browsing task instead of creating a separate visual system. Forms use visible labels, native controls where practical, and compact action groups. Selected states have text or pressed semantics in addition to color.
+Product photography comes from the supplied catalogue. Cards prefer the available detail photo, fall back to the thumbnail when needed, and keep lazy loading. Images use `object-fit: contain` and keep their original colors; blend modes do not tint merchandise to match the theme. No fabricated product images, commercial promises, discounts, or review claims are added.
 
-Quick view, reviews, and comparison use white detail surfaces. Native dialogs contain focus and provide explicit close controls. Dialog headings use the same sans-serif voice as the page; descriptions and metadata use slate text. Gallery thumbnails, zoom controls, and selected photos use cobalt boundaries and pale surfaces.
+Quick view, reviews, and comparison share the cream canvas, restrained dividers, and warm neutral photo panels. Native dialogs contain focus and have explicit close controls. Gallery thumbnails and selected photos use charcoal boundaries; zoom and horizontal scrolling remain available where appropriate.
 
-The comparison tray appears only after products are selected. Its floating white surface uses a soft offset shadow; the table itself uses crisp dividers and remains horizontally scrollable inside its own region on phones. Lowest-price and highest-rating labels refer only to the currently selected products.
-
-Similar products and recently viewed reuse compact bordered product strips with the same neutral photography and aligned prices. The recent-history section stays below the main catalogue. Wishlist, recent-history, and undo states clearly distinguish persistent browser storage from session-only fallback behavior.
+The comparison tray appears only after products are selected. Its cream surface has a restrained shadow and fine boundary. The comparison table scrolls within its own region on phones. Lowest-price and highest-rating labels describe only the selected products.
 
 ## Interaction and states
 
-- Primary buttons use cobalt with white text; secondary buttons use white or pale surfaces with cobalt text. Controls use 7–8px radii and visible keyboard focus.
-- Cards use borders for separation. Shadows are reserved for floating suggestions, dialogs, trays, and feedback.
-- Text selection, caret, scrollbars, and focus rings belong to the same palette. Product imagery remains authentic; no gradient text, decorative blur, or fabricated commercial promises are introduced.
-- Loading, request failure, missing images, invalid ranges, empty results, empty saved items, comparison limits, and storage failures have deliberate states.
-- Motion is restrained. Existing product transitions and the comparison tray entrance respect reduced-motion preferences.
-
-The optional Impeccable context and concept launcher was unavailable in this environment. The selected direction comes directly from the user's white-and-cobalt choice.
+- Primary buttons pair charcoal with cream text. Secondary controls use a strong warm border; forms and controls use restrained 2–5px radii and visible keyboard focus.
+- Search, category, brand, price, rating, and stock filtering continue to work together. Sorting, list/grid views, saved products, history, and direct product links keep the same behavior.
+- Guided choices, filter recovery, reviews, sharing, and undo support browsing within the same page. Selected states have text or pressed semantics in addition to color.
+- Shadows are reserved for floating suggestions, dialogs, the comparison tray, and feedback. No gold glow, gradient treatment, or decorative blur is needed.
+- Loading, request failure, missing images, invalid ranges, empty results, empty saved items, comparison limits, and storage failures have deliberate states. Storage messaging distinguishes browser persistence from session-only fallback.
+- Motion is restrained, and existing transitions respect reduced-motion preferences.

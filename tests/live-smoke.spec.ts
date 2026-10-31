@@ -227,6 +227,20 @@ test('live API renders products and imagery', async ({ page, isMobile }) => {
   await recentlyViewed.evaluate((element) =>
     element.scrollIntoView({ block: 'center', behavior: 'instant' }),
   );
+  await expect
+    .poll(() =>
+      recentlyViewed
+        .getByRole('img')
+        .evaluateAll((images) =>
+          images.every(
+            (image) =>
+              image instanceof HTMLImageElement &&
+              image.complete &&
+              image.naturalWidth > 0,
+          ),
+        ),
+    )
+    .toBe(true);
   await expect(
     recentlyViewed.getByRole('heading', {
       name: 'Recently viewed',

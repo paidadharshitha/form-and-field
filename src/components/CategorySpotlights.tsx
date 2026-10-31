@@ -20,7 +20,11 @@ export function CategorySpotlights({
   });
   if (!picks.length) return null;
   return (
-    <div className="category-spotlights" aria-label="Explore a category">
+    <div
+      className="category-spotlights"
+      role="group"
+      aria-label="Explore a category"
+    >
       {picks.map((product) => (
         <button
           key={product.id}
@@ -29,7 +33,7 @@ export function CategorySpotlights({
           aria-label={`Explore ${formatCategory(product.category)}`}
         >
           <span className="spotlight-image">
-            <ProductImage product={product} priority />
+            <ProductImage product={product} priority detailed />
           </span>
           <span className="spotlight-label">
             {formatCategory(product.category)}

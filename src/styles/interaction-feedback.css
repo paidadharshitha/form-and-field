@@ -10,12 +10,13 @@
   align-items: center;
   gap: 12px;
   padding: 12px 14px;
-  border-radius: 12px;
+  border-radius: 4px;
   background: var(--accent-soft);
   color: var(--ink);
 }
 .global-feedback .undo-notice {
   background: var(--paper);
+  border: 1px solid var(--line);
   box-shadow: 0 12px 40px var(--shadow-ink);
 }
 .undo-notice p {
@@ -37,7 +38,7 @@
 }
 .undo-notice .icon-button {
   flex-shrink: 0;
-  width: 36px;
+  width: 44px;
 }
 .linked-product-note {
   display: flex;
@@ -47,7 +48,7 @@
   padding: 16px;
   margin-bottom: 24px;
   border: 1px solid var(--line);
-  border-radius: 12px;
+  border-radius: 4px;
   font-size: 13px;
   line-height: 1.6;
   background: var(--surface);

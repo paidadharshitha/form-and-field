@@ -3,31 +3,27 @@
   color: var(--ink);
   background: var(--paper);
   font-synthesis: none;
-  --font-display: 'DM Sans', sans-serif;
-  --paper: #ffffff;
-  --ink: #172033;
-  --muted: #5d697c;
-  --accent: #2457e7;
-  --accent-hover: #1742bd;
-  --accent-soft: #edf3ff;
-  --on-accent: #ffffff;
-  --surface: #f5f7fb;
-  --surface-blue: #f0f5ff;
-  --line: #dce3ef;
-  --line-strong: #8391a8;
+  --font-display: 'Cormorant Garamond', serif;
+  --paper: #f8f4ec;
+  --ink: #292621;
+  --muted: #6c6054;
+  --accent: #292621;
+  --accent-hover: #484034;
+  --accent-soft: #e9e1d5;
+  --on-accent: #f8f4ec;
+  --surface: #eee8df;
+  --surface-soft: #f1ece3;
+  --line: #d9cfc1;
+  --line-strong: #918272;
   --focus: var(--accent);
-  --success: #15734a;
-  --danger: #b4233c;
-  --rating: #946200;
-  --selection: #d8e5ff;
-  --skeleton: #e9edf5;
-  --scrollbar: #a6b4cb;
-  --backdrop: rgb(15 27 51 / 50%);
-  --shadow-ink: rgb(20 34 66 / 16%);
-  /* Compatibility aliases for product controls using the earlier token names. */
-  --green: var(--accent);
-  --green-dark: var(--accent-hover);
-  --soft-green: var(--accent-soft);
+  --success: #3f644c;
+  --danger: #9b3543;
+  --rating: #77603a;
+  --selection: #e1d5c4;
+  --skeleton: #e6dfd3;
+  --scrollbar: #a19483;
+  --backdrop: rgb(35 30 24 / 52%);
+  --shadow-ink: rgb(47 37 25 / 14%);
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
   font-optical-sizing: auto;
@@ -163,8 +159,8 @@ svg {
 
   font-size: 27px;
 
-  letter-spacing: -0.04em;
-  font-weight: 600;
+  letter-spacing: -0.025em;
+  font-weight: 500;
 }
 .brand svg {
   width: 27px;
@@ -215,59 +211,6 @@ svg {
   font-size: 11px;
   color: var(--muted);
 }
-.intro {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  gap: 48px;
-  padding: 36px 0 28px;
-}
-.intro h1 {
-  font-family: var(--font-display);
-
-  font-weight: 600;
-
-  font-size: clamp(42px, 4.2vw, 62px);
-
-  line-height: 1.06;
-
-  letter-spacing: -0.04em;
-}
-.intro h1 span {
-  color: var(--accent);
-}
-.intro-copy {
-  padding-top: 15px;
-  width: 394px;
-}
-.intro-copy > p {
-  color: var(--muted);
-  font-size: 14px;
-  line-height: 1.85;
-}
-.collection-note {
-  display: flex;
-  align-items: center;
-  gap: 8px;
-  margin-top: 20px;
-
-  font-size: 12px;
-  color: var(--muted);
-}
-.status-dot {
-  width: 6px;
-  height: 6px;
-  background: var(--accent);
-  border-radius: 50%;
-  flex-shrink: 0;
-}
-.search-row {
-  display: flex;
-  gap: 32px;
-  align-items: center;
-  padding-bottom: 28px;
-  border-bottom: 1px solid var(--line);
-}
 .search-field {
   display: flex;
   align-items: center;
@@ -281,7 +224,7 @@ svg {
   border: 1px solid var(--line-strong);
   background: var(--paper);
 
-  border-radius: 10px;
+  border-radius: 4px;
   color: var(--accent);
 
   transition: border-color 180ms;
@@ -320,23 +263,13 @@ svg {
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  width: 36px;
-  height: 36px;
+  width: 44px;
+  height: 44px;
 
-  border-radius: 8px;
+  border-radius: 4px;
 }
 .icon-button:hover {
   background: var(--accent-soft);
-}
-.search-note {
-  width: 207px;
-  font-size: 12px;
-  line-height: 1.8;
-  color: var(--muted);
-}
-.search-note strong {
-  font-weight: 500;
-  color: var(--ink);
 }
 .catalogue-layout {
   display: grid;
@@ -396,7 +329,7 @@ fieldset legend {
   margin-inline: -10px;
   gap: 9px;
 
-  border-radius: 7px;
+  border-radius: 4px;
   cursor: pointer;
 
   font-size: 12px;
@@ -477,7 +410,7 @@ fieldset legend {
   height: 40px;
   border: 1px solid var(--line-strong);
 
-  border-radius: 7px;
+  border-radius: 4px;
   background: var(--paper);
 }
 .price-input > span {
@@ -547,26 +480,6 @@ fieldset legend {
   background: var(--accent-soft);
   color: var(--accent-hover);
 }
-.sidebar-note {
-  border-top: 1px solid var(--line);
-  padding: 27px 0;
-  margin-top: 27px;
-  color: var(--muted);
-}
-.sidebar-note svg {
-  width: 28px;
-  height: 28px;
-  margin-bottom: 12px;
-  color: var(--accent);
-}
-.sidebar-note p {
-  font-family: var(--font-display);
-
-  font-size: 16px;
-
-  line-height: 1.6;
-  font-weight: 500;
-}
 .results {
   min-width: 0;
 }
@@ -579,12 +492,11 @@ fieldset legend {
   margin-bottom: 18px;
 }
 .results-title h2 {
-  font-size: 22px;
-
-  letter-spacing: -0.03em;
-
-  font-weight: 600;
-  line-height: 1.4;
+  font-family: var(--font-display);
+  font-size: 36px;
+  letter-spacing: -0.02em;
+  font-weight: 500;
+  line-height: 1.1;
 }
 .results-title p {
   margin-top: 5px;
@@ -617,7 +529,7 @@ fieldset legend {
   border: 1px solid var(--line-strong);
   background: var(--paper);
 
-  border-radius: 7px;
+  border-radius: 4px;
 
   height: 40px;
   padding: 0 30px 0 12px;
@@ -653,7 +565,7 @@ fieldset legend {
 
   padding: 8px 11px;
 
-  border-radius: 6px;
+  border-radius: 4px;
 
   font-size: 12px;
   background: var(--accent-soft);
@@ -672,23 +584,18 @@ fieldset legend {
   display: grid;
   grid-template-columns: repeat(3, minmax(0, 1fr));
 
-  column-gap: 20px;
+  column-gap: 24px;
 
-  row-gap: 24px;
+  row-gap: 32px;
 }
 .product-card {
   display: flex;
   flex-direction: column;
   min-width: 0;
   padding: 0;
-  border: 1px solid var(--line);
-  border-radius: 14px;
-  background: var(--paper);
-  transition: border-color 180ms;
-}
-.product-card:hover,
-.product-card:focus-within {
-  border-color: var(--line-strong);
+  border: 0;
+  border-radius: 0;
+  background: transparent;
 }
 .product-image {
   display: flex;
@@ -699,7 +606,7 @@ fieldset legend {
   aspect-ratio: 1.1;
   flex-shrink: 0;
 
-  border-radius: 13px 13px 0 0;
+  border-radius: 4px;
 
   background: var(--surface);
   overflow: hidden;
@@ -737,7 +644,7 @@ fieldset legend {
   display: flex;
   flex-direction: column;
   flex: 1;
-  padding: 18px 18px 12px;
+  padding: 18px 0 0;
 }
 .product-category {
   color: var(--muted);
@@ -810,7 +717,7 @@ fieldset legend {
   min-height: 44px;
   padding: 0 23px;
 
-  border-radius: 8px;
+  border-radius: 4px;
 
   font-weight: 600;
 
@@ -825,7 +732,7 @@ fieldset legend {
   background: var(--accent-hover);
 }
 .secondary-button {
-  border: 1px solid var(--line);
+  border: 1px solid var(--line-strong);
   color: var(--accent);
   background: var(--paper);
 }
@@ -848,8 +755,8 @@ fieldset legend {
   min-height: 430px;
   padding: 50px 28px;
 
-  background: var(--surface-blue);
-  border-radius: 12px;
+  background: var(--surface-soft);
+  border-radius: 4px;
   border: 1px solid var(--line);
 }
 .state-icon {
@@ -860,7 +767,7 @@ fieldset legend {
 
   border: none;
 
-  border-radius: 16px;
+  border-radius: 4px;
 
   color: var(--accent);
   margin-bottom: 24px;
@@ -869,9 +776,9 @@ fieldset legend {
 .empty-state h3 {
   font-family: var(--font-display);
 
-  font-size: 28px;
+  font-size: 36px;
 
-  font-weight: 600;
+  font-weight: 500;
   line-height: 1.2;
   letter-spacing: -0.02em;
 }
@@ -888,7 +795,7 @@ fieldset legend {
 }
 .skeleton-image {
   aspect-ratio: 1;
-  border-radius: 12px;
+  border-radius: 4px;
   background: var(--skeleton);
 }
 .skeleton-line {
@@ -984,10 +891,10 @@ fieldset legend {
 .mobile-filter-header h2 {
   font-family: var(--font-display);
 
-  font-size: 26px;
+  font-size: 34px;
 
-  font-weight: 600;
-  letter-spacing: -0.03em;
+  font-weight: 500;
+  letter-spacing: -0.02em;
 }
 .mobile-filter-dialog .category-option {
   min-height: 44px;

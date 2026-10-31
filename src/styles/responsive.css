@@ -35,12 +35,6 @@
   .product-grid {
     gap: 28px 16px;
   }
-  .intro-copy {
-    width: 340px;
-  }
-  .search-note {
-    width: 180px;
-  }
   .product-info h3 {
     font-size: 15px;
   }
@@ -59,33 +53,11 @@
   .header-inner {
     height: 80px;
   }
-  .intro {
-    gap: 24px;
-    padding-block: 40px 32px;
-  }
-  .intro h1 {
-    font-size: 49px;
-  }
-  .intro-copy {
-    width: 300px;
-  }
-  .intro-copy > p {
-    font-size: 12px;
-  }
-  .collection-note {
-    font-size: 10px;
-  }
   .catalogue-layout {
     grid-template-columns: 1fr;
     padding-top: 26px;
   }
   .desktop-filters {
-    display: none;
-  }
-  .search-row {
-    padding-bottom: 28px;
-  }
-  .search-note {
     display: none;
   }
   .results-toolbar {
@@ -96,8 +68,8 @@
     gap: 7px;
     align-items: center;
     justify-content: center;
-    border: 1px solid var(--line);
-    border-radius: 5px;
+    border: 1px solid var(--line-strong);
+    border-radius: 4px;
     min-height: 40px;
     padding: 0 12px;
     font-size: 12px;
@@ -123,7 +95,7 @@
     font-size: 15px;
   }
   .product-image {
-    border-radius: 13px 13px 0 0;
+    border-radius: 4px;
   }
 }
 
@@ -155,34 +127,11 @@
   .nav-link.is-current::after {
     display: none;
   }
-  .intro {
-    display: block;
-    padding: 31px 0 26px;
-  }
-  .intro h1 {
-    font-size: clamp(43px, 12vw, 57px);
-    line-height: 1.04;
-  }
-  .intro-copy {
-    width: auto;
-    padding-top: 19px;
-  }
-  .intro-copy > p {
-    font-size: 13px;
-    line-height: 1.7;
-  }
-  .collection-note {
-    margin-top: 14px;
-    font-size: 10px;
-  }
-  .search-row {
-    padding-bottom: 24px;
-  }
   .search-field {
     height: 52px;
     padding-inline: 15px 10px;
     gap: 11px;
-    border-radius: 7px;
+    border-radius: 4px;
   }
   .search-field input {
     font-size: 16px;
@@ -207,7 +156,7 @@
     align-items: baseline;
   }
   .results-title h2 {
-    font-size: 20px;
+    font-size: 30px;
   }
   .results-title p {
     font-size: 10px;
@@ -247,21 +196,21 @@
   }
   .product-grid {
     grid-template-columns: repeat(2, minmax(0, 1fr));
-    gap: 16px 12px;
+    gap: 24px 14px;
   }
   .product-card {
     padding: 0;
-    border-radius: 12px;
+    border-radius: 0;
   }
   .product-image {
-    border-radius: 11px 11px 0 0;
+    border-radius: 4px;
   }
   .product-image img {
     width: 74%;
     height: 74%;
   }
   .product-info {
-    padding: 13px 12px 8px;
+    padding: 13px 0 0;
   }
   .product-category {
     font-size: 10px;
@@ -292,7 +241,7 @@
     padding: 35px 20px;
   }
   .empty-state h3 {
-    font-size: 27px;
+    font-size: 32px;
   }
   .empty-state p {
     font-size: 12px;
@@ -342,7 +291,7 @@
     width: 166px;
   }
   .results-title h2 {
-    font-size: 18px;
+    font-size: 28px;
   }
   .product-rating {
     font-size: 10px;

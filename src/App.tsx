@@ -2,16 +2,14 @@ import { ArrowUpRight, Heart } from 'lucide-react';
 import { useEffect, useMemo, useRef, useState } from 'react';
 import { ActiveFilters } from './components/ActiveFilters';
 import { CatalogueToolbar } from './components/CatalogueToolbar';
-import { CategorySpotlights } from './components/CategorySpotlights';
+import { CatalogueIntro } from './components/CatalogueIntro';
 import { CompareDialog } from './components/CompareDialog';
 import { CompareTray } from './components/CompareTray';
 import { FilterPanel } from './components/FilterPanel';
-import { GuidedFinder } from './components/GuidedFinder';
 import { MobileFilters } from './components/MobileFilters';
 import { ProductQuickView } from './components/ProductQuickView';
 import { ProductResults } from './components/ProductResults';
 import { ProductStrip } from './components/ProductStrip';
-import { SearchBar } from './components/SearchBar';
 import { UndoNotice } from './components/UndoNotice';
 import { getFilterSuggestions } from './lib/guidance';
 import { buildProductLink } from './lib/productLink';
@@ -303,7 +301,7 @@ export default function App() {
               The catalogue
             </a>
             <a className="nav-link" href="#about">
-              A little about us <ArrowUpRight size={14} />
+              About the catalogue <ArrowUpRight size={14} />
             </a>
           </nav>
           <button
@@ -326,39 +324,21 @@ export default function App() {
         </div>
       </header>
       <main className="page-width">
-        <section className="intro" aria-labelledby="page-title">
-          <div className="intro-text">
-            <h1 id="page-title">
-              Good things.
-              <br />
-              <span>Easy to find.</span>
-            </h1>
-            <p className="intro-description">
-              Everyday essentials. Unexpected favourites.
-            </p>
-            <div className="collection-note">
-              <span className="status-dot" />
-              {status === 'success'
-                ? `${products.length} products. ${categories.length} categories. Your next find.`
-                : 'A whole collection of possibilities.'}
-            </div>
-          </div>
-          <CategorySpotlights
-            products={products}
-            onSelect={(category) => {
-              setSavedView(false);
-              setFilter('category', category);
-              scrollToCatalogue();
-            }}
-          />
-        </section>
-        {status === 'success' && (
-          <GuidedFinder
-            categories={categories}
-            currentFilters={filters}
-            onApply={applyFinder}
-          />
-        )}
+        <CatalogueIntro
+          products={products}
+          categories={categories}
+          filters={filters}
+          suggestions={priceError ? [] : results}
+          isFuzzy={isFuzzy}
+          ready={status === 'success'}
+          onQueryChange={(value) => setFilter('query', value)}
+          onApplyFinder={applyFinder}
+          onSelectCategory={(category) => {
+            setSavedView(false);
+            setFilter('category', category);
+            scrollToCatalogue();
+          }}
+        />
         {linkedProduct && !quickView && status === 'success' && (
           <div className="linked-product-note" role="status">
             <p>
@@ -370,19 +350,6 @@ export default function App() {
             </button>
           </div>
         )}
-        <div className="search-row">
-          <SearchBar
-            query={filters.query}
-            suggestions={priceError ? [] : results}
-            isFuzzy={isFuzzy}
-            onChange={(value) => setFilter('query', value)}
-          />
-          <span className="search-note">
-            A little less searching.
-            <br />
-            <strong>A little more finding.</strong>
-          </span>
-        </div>
         <div className="catalogue-layout" id="catalogue">
           <aside className="desktop-filters" aria-label="Product filters">
             <div className="filter-heading">
@@ -397,20 +364,6 @@ export default function App() {
               )}
             </div>
             <FilterPanel {...filterProps} />
-            <div className="sidebar-note">
-              <svg viewBox="0 0 36 36" fill="none" aria-hidden="true">
-                <path
-                  d="M18 2v32M2 18h32M6.7 6.7l22.6 22.6M6.7 29.3L29.3 6.7"
-                  stroke="currentColor"
-                  strokeWidth="1.5"
-                />
-              </svg>
-              <p>
-                Good finds start
-                <br />
-                with a little curiosity.
-              </p>
-            </div>
           </aside>
           <section
             className="results"
