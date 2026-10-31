@@ -4,6 +4,7 @@ import { type Category, type Filters } from '../lib/catalogue';
 
 interface FilterPanelProps {
   categories: Category[];
+  brands: string[];
   filters: Filters;
   onChange: <K extends keyof Filters>(key: K, value: Filters[K]) => void;
   priceError: string | null;
@@ -11,6 +12,7 @@ interface FilterPanelProps {
 
 export function FilterPanel({
   categories,
+  brands,
   filters,
   onChange,
   priceError,
@@ -61,6 +63,30 @@ export function FilterPanel({
             {expanded ? <ChevronUp size={15} /> : <ChevronDown size={15} />}
           </button>
         )}
+      </fieldset>
+      <fieldset className="brand-filter">
+        <legend>Brand</legend>
+        <label className="sr-only" htmlFor={`${id}-brand`}>
+          Filter by brand
+        </label>
+        <div className="select-wrap brand-filter-select">
+          <select
+            id={`${id}-brand`}
+            value={filters.brand || ''}
+            onChange={(event) => onChange('brand', event.target.value)}
+          >
+            <option value="">All brands</option>
+            {filters.brand && !brands.includes(filters.brand) && (
+              <option value={filters.brand}>{filters.brand}</option>
+            )}
+            {brands.map((brand) => (
+              <option key={brand} value={brand}>
+                {brand}
+              </option>
+            ))}
+          </select>
+          <ChevronDown size={15} aria-hidden="true" />
+        </div>
       </fieldset>
       <fieldset className="price-filter">
         <legend>

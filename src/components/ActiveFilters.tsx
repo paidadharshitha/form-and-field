@@ -21,6 +21,11 @@ export function ActiveFilters({
       label: formatCategory(filters.category),
       onRemove: () => onChange('category', ''),
     });
+  if (filters.brand)
+    chips.push({
+      label: `Brand: ${filters.brand}`,
+      onRemove: () => onChange('brand', ''),
+    });
   if (filters.minPrice || filters.maxPrice)
     chips.push({
       label: `$${filters.minPrice || '0'} – ${filters.maxPrice ? `$${filters.maxPrice}` : 'Any'}`,

@@ -8,6 +8,8 @@ import App from './App';
 import './styles.css';
 import './styles/responsive.css';
 import './styles/enhancements.css';
+import './styles/discovery.css';
+import './styles/discovery-dialog.css';
 
 ReactDOM.createRoot(document.getElementById('root')!).render(
   <React.StrictMode>

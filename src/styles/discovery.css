@@ -1,0 +1,128 @@
+/* Search suggestions stay anchored to the shared desktop/mobile search field. */
+.search-combobox {
+  position: relative;
+  flex: 1;
+  min-width: 0;
+}
+.search-combobox .search-field {
+  width: 100%;
+}
+.search-suggestions {
+  position: absolute;
+  z-index: 15;
+  top: calc(100% + 8px);
+  left: 0;
+  right: 0;
+  overflow: hidden;
+  border-radius: 12px;
+  background: #fff;
+  box-shadow: 0 12px 32px #252c2721;
+}
+.suggestions-heading,
+.suggestions-hint {
+  margin: 0;
+  padding: 12px 17px;
+  font-size: 11px;
+  color: var(--muted);
+}
+.suggestions-heading {
+  color: var(--green);
+  font-weight: 600;
+}
+.suggestions-hint {
+  border-top: 1px solid var(--line);
+}
+.search-suggestions ul {
+  list-style: none;
+  margin: 0;
+  padding: 0 6px 6px;
+  max-height: min(350px, 46dvh);
+  overflow-y: auto;
+  overscroll-behavior: contain;
+}
+.search-suggestions [role='option'] {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 9px 11px;
+  border-radius: 7px;
+  cursor: pointer;
+  min-height: 62px;
+}
+.search-suggestions [role='option'][aria-selected='true'] {
+  background: var(--soft-green);
+  color: var(--green);
+}
+.suggestion-image {
+  flex: 0 0 42px;
+  width: 42px;
+  height: 42px;
+  background: #f2f3ed;
+  border-radius: 6px;
+  overflow: hidden;
+}
+.suggestion-image img {
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+  mix-blend-mode: multiply;
+}
+.suggestion-image .image-fallback {
+  height: 100%;
+  min-height: 0;
+}
+.suggestion-image .image-fallback span {
+  display: none;
+}
+.suggestion-name {
+  flex: 1;
+  font-size: 12px;
+  line-height: 1.5;
+  min-width: 0;
+  overflow-wrap: anywhere;
+}
+.suggestion-price {
+  flex-shrink: 0;
+  color: var(--green);
+  font-size: 12px;
+  font-variant-numeric: tabular-nums;
+}
+.brand-filter {
+  margin-top: 30px;
+}
+.brand-filter-select {
+  width: 100%;
+}
+.brand-filter-select select {
+  width: 100%;
+  padding-left: 12px;
+  padding-right: 32px;
+  text-overflow: ellipsis;
+}
+.fuzzy-search-note {
+  margin: 0 0 20px;
+  padding: 12px 14px;
+  border-radius: 7px;
+  background: var(--soft-green);
+  color: var(--green);
+  font-size: 12px;
+  line-height: 1.65;
+  overflow-wrap: anywhere;
+}
+@media (max-width: 600px) {
+  .brand-filter-select select {
+    font-size: 16px;
+  }
+  .search-suggestions [role='option'] {
+    gap: 9px;
+    padding-inline: 8px;
+  }
+  .suggestion-image {
+    flex-basis: 34px;
+    width: 34px;
+    height: 34px;
+  }
+  .suggestion-price {
+    font-size: 11px;
+  }
+}

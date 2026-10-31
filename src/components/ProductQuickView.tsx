@@ -1,9 +1,10 @@
-import { useId } from 'react';
+import { useEffect, useId, useRef } from 'react';
 import { Check, GitCompareArrows, Heart, Star } from 'lucide-react';
 import { formatCategory, type Product } from '../lib/catalogue';
 import { formatAvailability, formatPrice } from '../lib/format';
 import { Dialog } from './Dialog';
-import { ProductImage } from './ProductImage';
+import { ProductGallery } from './ProductGallery';
+import { ProductStrip } from './ProductStrip';
 
 interface ProductQuickViewProps {
   product: Product;
@@ -14,6 +15,8 @@ interface ProductQuickViewProps {
   compared: boolean;
   compareDisabled: boolean;
   storageAvailable?: boolean;
+  similarProducts?: Product[];
+  onOpenProduct?: (product: Product) => void;
 }
 
 export function ProductQuickView({
@@ -25,9 +28,24 @@ export function ProductQuickView({
   compared,
   compareDisabled,
   storageAvailable = true,
+  similarProducts = [],
+  onOpenProduct,
 }: ProductQuickViewProps) {
   const limitNoteId = useId();
+  const content = useRef<HTMLDivElement>(null);
+  const previousProductId = useRef(product.id);
   const comparisonFull = compareDisabled && !compared;
+
+  useEffect(() => {
+    if (previousProductId.current !== product.id) {
+      const dialog = content.current?.closest('dialog');
+      dialog?.scrollTo({ top: 0 });
+      dialog
+        ?.querySelector<HTMLButtonElement>('.dialog-close')
+        ?.focus({ preventScroll: true });
+      previousProductId.current = product.id;
+    }
+  }, [product.id]);
 
   return (
     <Dialog
@@ -35,10 +53,8 @@ export function ProductQuickView({
       onClose={onClose}
       className="quick-view-dialog"
     >
-      <div className="qv-layout">
-        <div className="qv-image">
-          <ProductImage product={product} priority />
-        </div>
+      <div className="qv-layout" ref={content}>
+        <ProductGallery key={product.id} product={product} />
         <div className="qv-details">
           <p className="qv-category">
             {formatCategory(product.category)}
@@ -113,6 +129,15 @@ export function ProductQuickView({
           </p>
         </div>
       </div>
+      {onOpenProduct && similarProducts.length > 0 && (
+        <ProductStrip
+          title="Similar products"
+          description="More from this category, close to this price."
+          products={similarProducts}
+          onOpen={onOpenProduct}
+          headingLevel={3}
+        />
+      )}
     </Dialog>
   );
 }

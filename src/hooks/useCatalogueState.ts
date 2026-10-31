@@ -21,6 +21,7 @@ function readLocation(): { filters: Filters; sort: SortOption } {
     filters: {
       query: params.get('q') ?? '',
       category: params.get('category') ?? '',
+      brand: params.get('brand')?.trim() ?? '',
       minPrice: params.get('min') ?? '',
       maxPrice: params.get('max') ?? '',
       minRating: normalizeRatingFilter(params.get('rating')),
@@ -44,6 +45,7 @@ export function useCatalogueState() {
     const values = {
       q: state.filters.query,
       category: state.filters.category,
+      brand: state.filters.brand?.trim() ?? '',
       min: state.filters.minPrice,
       max: state.filters.maxPrice,
       rating: normalizeRatingFilter(state.filters.minRating),

@@ -20,6 +20,13 @@ A responsive, single-page product catalogue built to help people find the right 
 
 </details>
 
+<details>
+<summary>View the image gallery and similar products</summary>
+
+![Product gallery with photo navigation, zoom, and similar products](docs/catalogue-gallery.png)
+
+</details>
+
 ## Run locally
 
 Use Node.js 24 and npm. No API key, environment variables, or backend setup are required.
@@ -47,16 +54,20 @@ npm run test:e2e
 
 ## Using the catalogue
 
-- **Search by name:** case-insensitive substring matching; surrounding whitespace is ignored.
+- **Smart search:** name suggestions appear as you type and respect active filters. Use the arrow keys and Enter to select a suggestion, or tap it. Escape dismisses suggestions; pressing it again clears the search. Matching ignores case and surrounding whitespace. If there are no exact name matches, conservative typo matching offers close results with an explicit notice.
 - **Category:** choose one category, browse all products, or use the illustrated category shortcuts. Shortcuts update the category while preserving your other filters.
+- **Brand:** choose a brand from the supplied catalogue data. The same selector is available in the desktop sidebar and phone filter sheet, and the active brand can be removed individually.
 - **Price:** optional minimum and maximum prices, including both endpoints. Blank fields leave that end unrestricted. Invalid or reversed ranges show a helpful validation message.
 - **Rating and availability:** narrow the collection to ratings of 4+ or 4.5+, and optionally show only products with stock available.
 - **Sort:** featured order, price low to high or high to low, and rating high to low or low to high. Equal values use product ID as a deterministic tie-breaker. Featured preserves the API's original order.
 - **Combined filters:** every active condition must match. Removing a filter or clearing all filters restores results immediately.
-- **Shareable filters:** `q`, `category`, `min`, `max`, `rating`, `stock`, and `sort` are reflected in the URL. For example, `?rating=4.5&stock=1&sort=price-asc` shows available products rated at least 4.5, cheapest first. Unsupported rating values are ignored.
+- **Shareable filters:** `q`, `category`, `brand`, `min`, `max`, `rating`, `stock`, and `sort` are reflected in the URL. For example, `?rating=4.5&stock=1&sort=price-asc` shows available products rated at least 4.5, cheapest first. Unsupported rating values are ignored.
 - **Progressive display:** 24 matching products appear initially; load more to see the next group. Filtering always searches the full collection, including products not yet displayed.
 - **Grid or list:** switch between image-led cards and a list with product descriptions while keeping the current filters and sort.
 - **Quick view:** open a product's image or title to inspect its description, brand when supplied, price, rating, and availability in a dialog.
+- **Image gallery and zoom:** browse supplied product photos in quick view and zoom in for detail. Products with a single image still support zoom; missing galleries use the thumbnail.
+- **Recently viewed:** the last eight products you opened appear below the catalogue, newest first. Reopening a product moves it to the front. History survives reloads on this browser and can be cleared with one action.
+- **Similar products:** quick view offers up to four alternatives in the same category and within 50% of the current product's price, ordered by the closest price. Opening an alternative stays in the same dialog.
 - **Wishlist:** save products using the heart, then open **Saved** to search and filter those finds. Saved IDs stay in this browser and synchronize across tabs.
 - **Comparison:** select up to three products, then choose **Compare** in the floating tray to review their details side by side. Products can be removed or saved from the comparison.
 
@@ -70,17 +81,23 @@ Desktop puts filters in a persistent sidebar. Phones use the same filter control
 
 For a few hundred items, a single fetch and a local filter/sort pipeline keep interactions immediate and make combined conditions straightforward. This deliberately avoids server requests on every keystroke. For a much larger catalogue, I would move filtering, sorting, and pagination to an API with matching semantics, plus request cancellation and caching.
 
+Search first checks exact normalized substrings across the current collection (all products or Saved). Typo matching runs only if that collection has no exact match. It checks each query word against title words, allowing one edit for words of 4–7 characters and two for words of at least 8, with at most two edits total. Short words and model numbers require exact matching. Category, brand, budget, rating, and stock conditions then narrow those matches. This keeps filters strict and avoids replacing excluded exact matches with unrelated suggestions. It is a small deterministic local matcher, without a search service or a large fuzzy-search dependency.
+
+Similar products use catalogue data: the same category and a price range from 50% to 150% of the viewed price. Ties use higher rating, then product ID. Zero-priced items only suggest other zero-priced items. The section is omitted when no suitable alternatives exist. Gallery URLs are included in the initial metadata request, while the selected photo and thumbnails load when needed.
+
 ### Keep state and business rules small
 
 React owns the interface state without an additional state-management library. `src/lib/catalogue.ts` contains the shared product types, response validation, category derivation, price validation, and pure filtering/sorting functions. Components render those results rather than duplicating the selection logic. The desktop and mobile interfaces share the same filter component.
 
-Product cards, quick view, category shortcuts, and comparisons reuse `ProductImage`, including its missing-image fallback. Quick view and comparison share a native-dialog wrapper for focus containment, keyboard dismissal, and returning focus when the dialog closes. Price and availability formatting are shared helpers.
+Product cards, category shortcuts, comparison, suggestions, and compact product strips reuse `ProductImage`, including its missing-image fallback. Quick view's gallery handles photo selection, zoom, and recovery to the product thumbnail when a detailed photo fails. Quick view and comparison share a native-dialog wrapper for focus containment, keyboard dismissal, and returning focus when the dialog closes. Similar and recently viewed products share one strip component; price and availability formatting are shared helpers.
 
 External JSON is validated before rendering. Fetch errors are visible and retryable; there is no hardcoded fallback catalogue that could disguise an unavailable data source. Products and images therefore remain dependent on DummyJSON's availability.
 
 ### Keep personal choices local
 
 The wishlist stores only product IDs in `localStorage` under `form-field:saved-products:v1`; it does not copy product records or create an account. Stored IDs are validated and deduplicated before use. Corrupt data is handled safely. When browser storage is unavailable or a write fails, saving continues in memory for the current visit and the interface explains that limitation. Saved products do not sync between browsers or devices.
+
+Recently viewed uses a separate `form-field:recently-viewed:v1` key, also storing only validated IDs. It keeps at most eight entries and writes only after an explicit product open or history-clear action. Unavailable storage falls back to the current visit. Products no longer present in the catalogue are not displayed. This history is local to the browser and does not provide cross-device or simultaneous-tab synchronization.
 
 The comparison is intentionally temporary, with a maximum of three products to keep the table readable. It resets on reload. Grid/list selection and the Saved view are also session UI choices; shared URLs preserve filters and sorting, not private saved IDs or comparison selections.
 
@@ -98,9 +115,9 @@ This is a catalogue, not a checkout flow. There is no cart, account, payment int
 
 ## Verification
 
-The automated checks focus on behavior: combining filters, inclusive price and rating boundaries, availability, search normalization, deterministic sorting, malformed API data, saved-ID validation, and the main catalogue interactions. Browser tests exercise the desktop and mobile experience, including saved products, quick view, comparison, and layout selection. They use controlled API responses so failures can be reproduced without depending on the live dataset changing.
+The automated checks focus on behavior: combining filters, inclusive price and rating boundaries, availability, exact-first typo matching, deterministic sorting, malformed API data, gallery URLs, related-product budgets, and stored-ID validation. Browser tests exercise the desktop and mobile experience, including keyboard suggestions, brand URLs, viewing history and storage failures, gallery navigation and zoom, image recovery, same-page alternatives, saved products, comparison, and layout selection. They use controlled API responses so failures can be reproduced without depending on the live dataset changing.
 
-Verified locally: **74 unit tests**, **39 browser tests**, and **2 live API smoke tests** pass. The browser suite includes automated axe checks of the catalogue, filters, quick view, and comparison dialogs against WCAG A/AA rules; these checks report no violations. Automated checks complement keyboard and visual review; they do not constitute comprehensive accessibility certification.
+Verified locally: **97 unit tests**, **57 browser tests**, and **2 live API smoke tests** pass. The browser suite includes automated axe checks of the catalogue, search suggestions, filters, gallery, zoom, quick view, and comparison dialogs against WCAG A/AA rules; these checks report no violations. Automated checks complement keyboard and visual review; they do not constitute comprehensive accessibility certification.
 
 The normal browser run skips the live API tests and the phone-only dialog test on desktop. To run the live smoke checks (which also capture desktop and mobile screenshots):
 
@@ -119,6 +136,9 @@ Useful manual checks:
 7. Save a product, reload, and confirm it remains in Saved; repeat with storage disabled to check the session-only message.
 8. Compare three products, confirm a fourth cannot be added, then remove one and add another.
 9. Open and close quick view with the keyboard; switch between grid and list while filters are active.
+10. Search for `lipstik`, select a suggestion with the arrow keys and Enter, then combine a brand and budget.
+11. Open a product with multiple photos, switch images, and zoom; try the gallery on a phone as well.
+12. Open a similar product, close the dialog, and reopen it from Recently viewed. Reload to check history, then clear it.
 
 ## Deployment
 

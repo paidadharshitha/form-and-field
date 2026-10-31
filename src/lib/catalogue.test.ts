@@ -3,9 +3,12 @@ import {
   EMPTY_FILTERS,
   filterAndSortProducts,
   formatCategory,
+  getBrands,
   getCategories,
+  getSimilarProducts,
   normalizeRatingFilter,
   parseProducts,
+  searchProducts,
   validatePriceRange,
   type Product,
   type SortOption,
@@ -57,7 +60,183 @@ const products: Product[] = [
 
 const ids = (items: Product[]) => items.map((item) => item.id);
 
+describe('searchProducts', () => {
+  it('prefers exact normalized title substrings and preserves source order', () => {
+    const collection = [
+      { ...products[0], title: 'Oak    Table' },
+      { ...products[1], title: 'Oak Cable' },
+    ];
+    const result = searchProducts(collection, '  OAK TABLE  ');
+    expect(ids(result.products)).toEqual([3]);
+    expect(result.isFuzzy).toBe(false);
+    expect(ids(searchProducts(products, 'table').products)).toEqual([3, 1, 2]);
+  });
+
+  it('corrects a missing letter or adjacent transposition only when no exact title matches exist', () => {
+    expect(ids(searchProducts(products, 'tabel').products)).toEqual([3, 1, 2]);
+    expect(searchProducts(products, 'tabel').isFuzzy).toBe(true);
+    expect(ids(searchProducts(products, 'perfum').products)).toEqual([4]);
+  });
+
+  it('requires every query token to match a distinct title token', () => {
+    expect(ids(searchProducts(products, 'smal tabel').products)).toEqual([1]);
+    expect(searchProducts(products, 'table table').products).toEqual([]);
+    expect(searchProducts(products, 'small perfume').products).toEqual([]);
+  });
+
+  it('limits the typo budget to two edits across the complete query', () => {
+    const collection = [{ ...products[0], title: 'Travel Table Mirror' }];
+    expect(searchProducts(collection, 'trvel tabel mirror').isFuzzy).toBe(true);
+    expect(searchProducts(collection, 'trvel tabel miror').products).toEqual(
+      [],
+    );
+  });
+
+  it('allows two edits for a long word while keeping short words conservative', () => {
+    const collection = [{ ...products[0], title: 'Sunglasses' }];
+    expect(ids(searchProducts(collection, 'sunglasszz').products)).toEqual([3]);
+    expect(searchProducts(products, 'xablz').products).toEqual([]);
+    expect(searchProducts(products, 'tbl').products).toEqual([]);
+  });
+
+  it('does not correct model numbers or search descriptions and brands', () => {
+    const collection = [{ ...products[0], title: 'Galaxy S24' }];
+    expect(searchProducts(collection, 'Galaxy S25').products).toEqual([]);
+    expect(ids(searchProducts(collection, 'Galxy S24').products)).toEqual([3]);
+    expect(searchProducts(products, 'quiet home').products).toEqual([]);
+    expect(searchProducts(products, 'Studio').products).toEqual([]);
+  });
+
+  it('returns no fuzzy status for empty results and handles oversized queries', () => {
+    expect(searchProducts(products, 'no such product')).toEqual({
+      products: [],
+      isFuzzy: false,
+    });
+    expect(searchProducts(products, 'z'.repeat(200))).toEqual({
+      products: [],
+      isFuzzy: false,
+    });
+    expect(searchProducts([], '')).toEqual({ products: [], isFuzzy: false });
+    expect(searchProducts(products, ' ')).toEqual({ products, isFuzzy: false });
+  });
+});
+
+describe('brands', () => {
+  it('derives sorted, distinct, trimmed names and ignores blank or absent brands', () => {
+    const collection = [
+      { ...products[0], brand: ' Studio ' },
+      { ...products[1], brand: 'Acme' },
+      { ...products[2], brand: 'Studio' },
+      { ...products[3], brand: ' ' },
+      { ...products[1], brand: undefined },
+    ];
+    expect(getBrands(collection)).toEqual(['Acme', 'Studio']);
+    expect(getBrands([])).toEqual([]);
+  });
+});
+
+describe('getSimilarProducts', () => {
+  const reference = { ...products[0], id: 100, price: 100 };
+  const alternative = (id: number, price: number, rating = 4): Product => ({
+    ...reference,
+    id,
+    price,
+    rating,
+  });
+
+  it('returns same-category alternatives within inclusive 50% price distance', () => {
+    const collection = [
+      reference,
+      alternative(1, 50),
+      alternative(2, 150),
+      alternative(3, 49.99),
+      alternative(4, 150.01),
+      { ...alternative(5, 100), category: 'beauty' },
+    ];
+    expect(ids(getSimilarProducts(collection, reference))).toEqual([1, 2]);
+  });
+
+  it('orders by price distance, then rating and ID without changing source order', () => {
+    const collection = [
+      alternative(7, 110, 4),
+      alternative(4, 90, 5),
+      alternative(3, 110, 5),
+      alternative(8, 101, 1),
+      alternative(9, 120, 5),
+    ];
+    const originalIds = ids(collection);
+    expect(ids(getSimilarProducts(collection, reference))).toEqual([
+      8, 3, 4, 7,
+    ]);
+    expect(ids(getSimilarProducts(collection, reference, 2))).toEqual([8, 3]);
+    expect(ids(collection)).toEqual(originalIds);
+  });
+
+  it('matches only free alternatives for a zero-price product and handles invalid limits', () => {
+    const free = { ...reference, price: 0 };
+    expect(
+      ids(
+        getSimilarProducts(
+          [free, alternative(2, 0), alternative(3, 0.01)],
+          free,
+        ),
+      ),
+    ).toEqual([2]);
+    for (const limit of [0, -1, NaN, Infinity]) {
+      expect(
+        getSimilarProducts([alternative(2, 100)], reference, limit),
+      ).toEqual([]);
+    }
+  });
+});
+
 describe('filterAndSortProducts', () => {
+  it('combines brand, fuzzy name search, category, price, rating, stock, and sorting', () => {
+    const collection = [
+      { ...products[0], brand: ' Studio ' },
+      { ...products[1], brand: 'Studio', stock: 1 },
+      { ...products[2], brand: 'Studio' },
+    ];
+    expect(
+      ids(
+        filterAndSortProducts(
+          collection,
+          {
+            ...EMPTY_FILTERS,
+            query: 'tabel',
+            category: 'home-decoration',
+            brand: 'Studio',
+            minPrice: '20',
+            maxPrice: '100',
+            minRating: '4',
+            inStockOnly: true,
+          },
+          'price-asc',
+        ),
+      ),
+    ).toEqual([1, 3]);
+    expect(
+      filterAndSortProducts(
+        collection,
+        { ...EMPTY_FILTERS, brand: 'Other' },
+        'featured',
+      ),
+    ).toEqual([]);
+  });
+
+  it('does not broaden an exact search when another filter excludes its result', () => {
+    const collection = [
+      { ...products[0], title: 'Table', brand: 'Studio' },
+      { ...products[1], title: 'Cable', brand: 'Other' },
+    ];
+    expect(
+      filterAndSortProducts(
+        collection,
+        { ...EMPTY_FILTERS, query: 'table', brand: 'Other' },
+        'featured',
+      ),
+    ).toEqual([]);
+  });
   it('combines rating and stock with the existing search, category, and price filters', () => {
     expect(
       ids(
@@ -301,6 +480,35 @@ describe('categories', () => {
 });
 
 describe('parseProducts', () => {
+  it('accepts optional image galleries, preserves order, and removes duplicate URLs', () => {
+    const images = [
+      'https://example.com/front.webp',
+      'http://example.com/back.webp',
+      'https://example.com/front.webp',
+    ];
+    expect(
+      parseProducts({ products: [{ ...products[0], images }] })[0].images,
+    ).toEqual(images.slice(0, 2));
+    expect(
+      parseProducts({ products: [{ ...products[0], images: [] }] })[0].images,
+    ).toEqual([]);
+    expect(parseProducts({ products: [products[0]] })[0]).not.toHaveProperty(
+      'images',
+    );
+  });
+
+  it.each([
+    null,
+    'https://example.com/image.webp',
+    [null],
+    ['broken'],
+    ['javascript:alert(1)'],
+    ['https://example.com/valid.webp', 2],
+  ])('rejects malformed gallery data %o', (images) => {
+    expect(() =>
+      parseProducts({ products: [{ ...products[0], images }] }),
+    ).toThrow(/invalid catalogue data/);
+  });
   it('accepts valid API data, optional brands, zero stock, and ignores extra fields', () => {
     expect(parseProducts({ products, total: products.length })).toEqual(
       products,

@@ -480,20 +480,6 @@ html {
   gap: 30px;
   align-items: start;
 }
-.qv-image {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  background: #efeee7;
-  border-radius: 12px;
-  aspect-ratio: 1;
-}
-.qv-image img {
-  object-fit: contain;
-  width: 92%;
-  height: 92%;
-  mix-blend-mode: multiply;
-}
 .qv-details {
   padding-top: 6px;
 }
@@ -951,13 +937,6 @@ html {
   .qv-layout {
     grid-template-columns: minmax(0, 1fr);
     gap: 19px;
-  }
-  .qv-image {
-    aspect-ratio: 1.35;
-  }
-  .qv-image img {
-    width: 83%;
-    height: 83%;
   }
   .qv-details {
     padding-top: 0;

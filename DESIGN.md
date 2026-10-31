@@ -14,5 +14,7 @@ The catalogue is a task-focused surface with the quiet character of an independe
 - The Saved view is part of the existing results area, with an empty collection state and clear wording when persistence is unavailable.
 - Product names wrap; price/rating figures use tabular numerals. All controls have focus states, and motion respects reduced-motion preferences.
 - Loading, error/retry, invalid range, no-match, empty wishlist, comparison limits, and unavailable images are intentional parts of the same surface.
+- Search suggestions sit directly below the search field, with product images and prices, keyboard navigation, and an explicit close-match explanation for typo results. Brand uses the existing native-select vocabulary.
+- Quick view's gallery keeps photo selection and zoom inside the same dialog. Similar products and recently viewed reuse a compact horizontal product strip; history sits below the main catalogue so returning-visit features do not crowd primary discovery.
 
 The optional Impeccable context/seed launcher was unavailable in this environment. The direction follows the supplied professional catalogue brief.

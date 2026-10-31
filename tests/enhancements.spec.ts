@@ -293,7 +293,7 @@ test('stock and minimum rating work together with the original filters', async (
     'Silk Lipstick',
   ]);
   await page
-    .getByRole('searchbox', { name: 'Search products by name' })
+    .getByRole('combobox', { name: 'Search products by name' })
     .fill('Satin');
   await expect(
     page.getByRole('heading', { name: 'No finds this time.' }),

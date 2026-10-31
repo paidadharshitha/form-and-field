@@ -9,3 +9,5 @@ The user subsequently requested additional features and a more impressive profes
 Filter and sort state is shareable through URL parameters. Saved product IDs persist only in the current browser and synchronize across its tabs, with an in-memory fallback when storage fails. Comparison selections and view preferences are temporary. Quick view and comparison show supplied metadata; missing brands are identified as unspecified.
 
 Stack: React, TypeScript, Vite, plain CSS, Vitest, Playwright. Pricing is displayed in USD, an explicit display assumption because the API has no currency field.
+
+Discovery also includes keyboard-accessible product suggestions, conservative typo matching, and a brand filter. Quick view supports the supplied image gallery with zoom and same-category alternatives within 50% of the viewed price. The last eight explicitly opened products are remembered on this browser and shown below the catalogue, with a clear-history action. Sidebar category product counts remain omitted at the user's request.

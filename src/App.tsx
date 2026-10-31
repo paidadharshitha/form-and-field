@@ -9,14 +9,19 @@ import { FilterPanel } from './components/FilterPanel';
 import { MobileFilters } from './components/MobileFilters';
 import { ProductQuickView } from './components/ProductQuickView';
 import { ProductResults } from './components/ProductResults';
+import { ProductStrip } from './components/ProductStrip';
 import { SearchBar } from './components/SearchBar';
 import { useCatalogueState } from './hooks/useCatalogueState';
 import { useProducts } from './hooks/useProducts';
+import { useRecentlyViewed } from './hooks/useRecentlyViewed';
 import { useSavedProducts } from './hooks/useSavedProducts';
 import {
   filterAndSortProducts,
   formatCategory,
+  getBrands,
   getCategories,
+  getSimilarProducts,
+  searchProducts,
   validatePriceRange,
   type Product,
 } from './lib/catalogue';
@@ -45,6 +50,12 @@ export default function App() {
   const { filters, sort, setFilter, setSort, clearFilters } =
     useCatalogueState();
   const { savedIds, toggleSaved, storageAvailable } = useSavedProducts();
+  const {
+    recentIds,
+    recordView,
+    clearHistory,
+    storageAvailable: historyAvailable,
+  } = useRecentlyViewed();
   const [mobileFiltersOpen, setMobileFiltersOpen] = useState(false);
   const [savedView, setSavedView] = useState(false);
   const [view, setView] = useState<'grid' | 'list'>('grid');
@@ -71,6 +82,22 @@ export default function App() {
     compareIds.includes(product.id),
   );
   const categories = useMemo(() => getCategories(products), [products]);
+  const brands = useMemo(() => getBrands(products), [products]);
+  const recentlyViewed = useMemo(() => {
+    const byId = new Map(products.map((product) => [product.id, product]));
+    return recentIds.flatMap((id) => {
+      const product = byId.get(id);
+      return product ? [product] : [];
+    });
+  }, [products, recentIds]);
+  const similarProducts = useMemo(
+    () => (quickView ? getSimilarProducts(products, quickView) : []),
+    [products, quickView],
+  );
+  const isFuzzy = useMemo(
+    () => searchProducts(sourceProducts, filters.query).isFuzzy,
+    [sourceProducts, filters.query],
+  );
   const priceError = validatePriceRange(filters);
   const results = useMemo(
     () => filterAndSortProducts(sourceProducts, filters, sort),
@@ -79,6 +106,7 @@ export default function App() {
   const count = priceError ? 0 : results.length;
   const filterCount =
     Number(Boolean(filters.category)) +
+    Number(Boolean(filters.brand)) +
     Number(Boolean(filters.minPrice || filters.maxPrice)) +
     Number(Boolean(filters.minRating)) +
     Number(Boolean(filters.inStockOnly));
@@ -98,10 +126,16 @@ export default function App() {
         : `${count} ${count === 1 ? 'product' : 'products'}${hasFilters ? ` of ${sourceProducts.length}` : ' to explore'}`;
   const filterProps = {
     categories,
+    brands,
     filters,
     onChange: setFilter,
     priceError,
   };
+
+  function openProduct(product: Product) {
+    recordView(product.id);
+    setQuickView(product);
+  }
 
   function saveProduct(id: number) {
     if (
@@ -157,7 +191,7 @@ export default function App() {
   const productActions = {
     savedIds,
     compareIds,
-    onOpen: setQuickView,
+    onOpen: openProduct,
     onSave: saveProduct,
     onCompare: toggleCompare,
   };
@@ -227,6 +261,8 @@ export default function App() {
         <div className="search-row">
           <SearchBar
             query={filters.query}
+            suggestions={priceError ? [] : results}
+            isFuzzy={isFuzzy}
             onChange={(value) => setFilter('query', value)}
           />
           <span className="search-note">
@@ -298,6 +334,12 @@ export default function App() {
               onChange={setFilter}
               onClear={clearFilters}
             />
+            {isFuzzy && count > 0 && (
+              <p className="fuzzy-search-note" role="status">
+                No exact name matches. Showing close matches for “
+                {filters.query.trim()}”.
+              </p>
+            )}
             <ProductResults
               key={JSON.stringify({ filters, sort, status, savedView })}
               products={results}
@@ -313,6 +355,31 @@ export default function App() {
             />
           </section>
         </div>
+        {recentlyViewed.length > 0 && (
+          <ProductStrip
+            title="Recently viewed"
+            description={
+              historyAvailable
+                ? 'Pick up where you left off. Kept on this browser.'
+                : 'Your recent finds, kept for this visit.'
+            }
+            products={recentlyViewed}
+            onOpen={openProduct}
+            action={
+              <button
+                className="text-button"
+                onClick={() => {
+                  clearHistory();
+                  document
+                    .getElementById('results-heading')
+                    ?.focus({ preventScroll: true });
+                }}
+              >
+                Clear recently viewed
+              </button>
+            }
+          />
+        )}
       </main>
       <footer className="site-footer" id="about">
         <div className="page-width footer-inner">
@@ -350,6 +417,8 @@ export default function App() {
             !compareIds.includes(quickView.id) && compareIds.length >= 3
           }
           onCompare={() => toggleCompare(quickView.id)}
+          similarProducts={similarProducts}
+          onOpenProduct={openProduct}
         />
       )}
       {compareOpen && comparedProducts.length > 0 && (

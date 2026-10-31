@@ -96,8 +96,11 @@ test('search, category, inclusive price range, and sorting work together', async
   await page.goto('/');
   await expect(productTitles(page)).toHaveCount(5);
   await page
-    .getByRole('searchbox', { name: 'Search products by name' })
+    .getByRole('combobox', { name: 'Search products by name' })
     .fill(' LIP ');
+  await page
+    .getByRole('combobox', { name: 'Search products by name' })
+    .press('Escape');
 
   const filters = await openFilters(page, isMobile);
   await filters.getByRole('radio', { name: /^Beauty\b/ }).check();
@@ -166,7 +169,7 @@ test('empty results offer a working reset of search and all filters', async ({
   await mockCatalogue(page);
   await page.goto('/?category=beauty&min=12&max=24');
   await page
-    .getByRole('searchbox', { name: 'Search products by name' })
+    .getByRole('combobox', { name: 'Search products by name' })
     .fill('no such product');
   await expect(
     page.getByRole('heading', { name: 'No finds this time.' }),
@@ -177,7 +180,7 @@ test('empty results offer a working reset of search and all filters', async ({
     .click();
   await expect(productTitles(page)).toHaveCount(5);
   await expect(
-    page.getByRole('searchbox', { name: 'Search products by name' }),
+    page.getByRole('combobox', { name: 'Search products by name' }),
   ).toHaveValue('');
   const filters = await openFilters(page, isMobile);
   await expect(
@@ -211,7 +214,7 @@ test('a shared URL and reload preserve the complete catalogue state', async ({
     'Silk Lipstick',
   ]);
   await expect(
-    page.getByRole('searchbox', { name: 'Search products by name' }),
+    page.getByRole('combobox', { name: 'Search products by name' }),
   ).toHaveValue('lip');
   await expect(
     page.getByRole('combobox', { name: 'Sort products' }),
@@ -335,7 +338,7 @@ test('the layout fits its viewport, including long searches and filter controls'
     )
     .toBe(true);
   await page
-    .getByRole('searchbox', { name: 'Search products by name' })
+    .getByRole('combobox', { name: 'Search products by name' })
     .fill('a'.repeat(150));
   await expect(
     page.getByRole('heading', { name: 'No finds this time.' }),
@@ -407,7 +410,7 @@ test('expanding results and changing filters resets the visible batch', async ({
   );
 
   await page
-    .getByRole('searchbox', { name: 'Search products by name' })
+    .getByRole('combobox', { name: 'Search products by name' })
     .fill('Product 30');
   await expect(productTitles(page)).toHaveText(['Everyday Product 30']);
   await page.getByRole('button', { name: 'Clear search', exact: true }).click();
