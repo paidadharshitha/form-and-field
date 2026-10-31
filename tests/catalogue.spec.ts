@@ -307,20 +307,55 @@ test('malformed API data produces a recoverable error', async ({ page }) => {
   await expect(productTitles(page)).toHaveCount(0);
 });
 
-test('unavailable images retain useful product information', async ({
+test('detailed card images recover through thumbnails and keep useful information', async ({
   page,
 }) => {
-  await mockCatalogue(page);
-  await page.route('https://images.example.com/silk.svg', (route) =>
-    route.abort(),
+  const detailedProducts = products.map((product) => ({
+    ...product,
+    images: [`https://images.example.com/product-${product.id}-detail.svg`],
+  }));
+  await page.route(endpoint, (route) =>
+    route.fulfill({
+      json: { products: detailedProducts, total: detailedProducts.length },
+    }),
   );
+  for (const source of [
+    'https://images.example.com/product-2-detail.svg',
+    'https://images.example.com/product-3-detail.svg',
+    'https://images.example.com/satin.svg',
+    'https://images.example.com/kit.svg',
+  ]) {
+    await page.route(source, (route) => route.abort());
+  }
+  // A product without supplied detail images still uses the same final fallback.
+  detailedProducts[4].images = [];
   await page.goto('/');
-  const card = page.getByRole('article', { name: 'Silk Lipstick' });
-  await expect(card.getByText('Image unavailable')).toBeVisible();
-  await expect(card.getByText('$12.00')).toBeVisible();
-  await expect(
-    card.getByRole('heading', { name: 'Silk Lipstick' }),
-  ).toBeVisible();
+  for (const [title, source] of [
+    ['Silk Lipstick', 'https://images.example.com/product-1-detail.svg'],
+    ['Rose Lipstick', 'https://images.example.com/rose.svg'],
+  ]) {
+    const image = page.getByRole('article', { name: title }).getByRole('img');
+    await expect(image).toHaveAttribute('src', source);
+    await expect
+      .poll(() =>
+        image.evaluate(
+          (element) =>
+            element instanceof HTMLImageElement &&
+            element.complete &&
+            element.naturalWidth > 0,
+        ),
+      )
+      .toBe(true);
+  }
+  for (const [title, price] of [
+    ['Satin Lipstick', '$40.00'],
+    ['Travel Kit', '$24.00'],
+  ]) {
+    const card = page.getByRole('article', { name: title });
+    await expect(card.getByText('Image unavailable')).toBeVisible();
+    await expect(card.getByText(price)).toBeVisible();
+    await expect(card.getByRole('heading', { name: title })).toBeVisible();
+  }
 });
 
 test('the layout fits its viewport, including long searches and filter controls', async ({

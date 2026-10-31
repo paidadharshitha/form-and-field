@@ -6,16 +6,24 @@ interface ProductImageProps {
   product: Product;
   priority?: boolean;
   className?: string;
+  detailed?: boolean;
 }
 
 export function ProductImage({
   product,
   priority = false,
   className,
+  detailed = false,
 }: ProductImageProps) {
-  const [failedSource, setFailedSource] = useState<string | null>(null);
+  const [failedSources, setFailedSources] = useState<string[]>([]);
+  const preferredSource = detailed
+    ? (product.images?.[0] ?? product.thumbnail)
+    : product.thumbnail;
+  const source = failedSources.includes(preferredSource)
+    ? product.thumbnail
+    : preferredSource;
 
-  if (failedSource === product.thumbnail) {
+  if (failedSources.includes(source)) {
     return (
       <div className="image-fallback">
         <ImageOff size={28} aria-hidden="true" />
@@ -27,13 +35,13 @@ export function ProductImage({
   return (
     <img
       className={className}
-      src={product.thumbnail}
+      src={source}
       alt={product.title}
       loading={priority ? 'eager' : 'lazy'}
       decoding="async"
       width="320"
       height="320"
-      onError={() => setFailedSource(product.thumbnail)}
+      onError={() => setFailedSources((current) => [...current, source])}
     />
   );
 }

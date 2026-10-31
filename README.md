@@ -14,6 +14,13 @@ A responsive, single-page product catalogue built to help people find the right 
 <img src="docs/catalogue-mobile.png" alt="The catalogue on a phone, with two-column product cards and a filter button" width="300" />
 
 <details>
+<summary>View the product cards</summary>
+
+![Product cards with neutral photography, brand details, aligned prices, and accessible save and comparison controls](docs/catalogue-cards.png)
+
+</details>
+
+<details>
 <summary>View the product comparison</summary>
 
 ![Product comparison with prices, ratings, and availability](docs/catalogue-compare.png)
@@ -104,7 +111,7 @@ The guided finder is a transparent shortcut into the same filter/sort pipeline. 
 
 React owns the interface state without an additional state-management library. `src/lib/catalogue.ts` contains the shared product types, response validation, category derivation, price validation, and pure filtering/sorting functions. Components render those results rather than duplicating the selection logic. The desktop and mobile interfaces share the same filter component.
 
-Product cards, category shortcuts, comparison, suggestions, and compact product strips reuse `ProductImage`, including its missing-image fallback. Quick view's gallery handles photo selection, zoom, and recovery to the product thumbnail when a detailed photo fails. Quick view and comparison share a native-dialog wrapper for focus containment, keyboard dismissal, and returning focus when the dialog closes. Similar and recently viewed products share one strip component; price and availability formatting are shared helpers.
+Product cards, category shortcuts, comparison, suggestions, and compact product strips reuse `ProductImage`. Larger catalogue cards prefer the supplied detail photo, fall back to the thumbnail if it fails, then show an explicit unavailable-image state. Smaller placements retain thumbnails to limit image weight. Quick view's gallery handles photo selection and zoom with the same recovery sequence. Quick view and comparison share a native-dialog wrapper for focus containment, keyboard dismissal, and returning focus when the dialog closes. Similar and recently viewed products share one strip component; price and availability formatting are shared helpers.
 
 External JSON is validated before rendering. Fetch errors are visible and retryable; there is no hardcoded fallback catalogue that could disguise an unavailable data source. Products and images therefore remain dependent on DummyJSON's availability.
 
@@ -121,6 +128,8 @@ The comparison is intentionally temporary, with a maximum of three products to k
 ### Make the catalogue easy to scan
 
 The user-selected visual direction pairs a clean white canvas with cobalt blue actions, slate text, and self-hosted DM Sans typography. Shared color tokens keep cards, forms, dialogs, feedback, and focus states consistent. Product images, names, prices, and ratings lead the card hierarchy. Category shortcuts and the collapsible guided finder provide entry points without hiding search. Labels, native form controls, dialogs, and responsive spacing support keyboard and small-screen use. The comparison table scrolls within its own region on phones. Images load lazily where appropriate, and showing products in groups limits the initial DOM and image workload.
+
+Product presentation uses neutral photo backgrounds, complete product names, supplied brand/category details, and larger prices. Card bodies stretch to align price and action rows despite different title lengths. Save and comparison controls have 44px touch targets; the related-product strips use the same image and spacing rules. No promotional badges or product claims are invented for visual effect.
 
 Prices use **USD as a display assumption**: the API provides a numeric price without an explicit currency field. Prices are shown directly from the API; the application does not calculate an additional discount.
 

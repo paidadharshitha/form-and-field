@@ -27,7 +27,8 @@ All typography uses self-hosted **DM Sans**, with 400, 500, and 600 weights. Dis
 - The opening headline uses strong sans-serif typography. Illustrated category shortcuts provide direct entry points using actual catalogue product images.
 - Search is the primary full-width discovery control. Suggestions stay attached to it, with real product images and prices, keyboard selection, and clear wording for close matches.
 - Desktop uses a bounded content width, a persistent filter sidebar, and three product columns; large screens can show four columns. Phones keep two columns and place filters in a native dialog.
-- Product cards use a light border, a 12–14px outer radius, clear image surfaces, and distinct save, quick-view, and comparison actions. A selected comparison changes the card boundary to cobalt.
+- Product cards use a light border and a 12–14px outer radius. Consistent neutral image surfaces give authentic product photography room to breathe, without tinting the images. Catalogue cards prefer the supplied detail photo, recover to the thumbnail on failure, and keep lazy loading.
+- Full product titles lead the card, followed by a quiet brand/category line. A flex layout aligns prices, ratings, and footer controls across different title lengths. Prices carry more visual weight; save and comparison controls have 44px targets. Photo buttons retain a visible arrow affordance on touch screens and a detail label on desktop hover/focus. A selected comparison changes the card boundary to cobalt.
 - List view uses separated rows with readable descriptions. It keeps the same actions and filters without nesting another card around each row.
 
 ## Decision tools and details
@@ -38,7 +39,7 @@ Quick view, reviews, and comparison use white detail surfaces. Native dialogs co
 
 The comparison tray appears only after products are selected. Its floating white surface uses a soft offset shadow; the table itself uses crisp dividers and remains horizontally scrollable inside its own region on phones. Lowest-price and highest-rating labels refer only to the currently selected products.
 
-Similar products and recently viewed reuse compact bordered product strips. The recent-history section stays below the main catalogue. Wishlist, recent-history, and undo states clearly distinguish persistent browser storage from session-only fallback behavior.
+Similar products and recently viewed reuse compact bordered product strips with the same neutral photography and aligned prices. The recent-history section stays below the main catalogue. Wishlist, recent-history, and undo states clearly distinguish persistent browser storage from session-only fallback behavior.
 
 ## Interaction and states
 

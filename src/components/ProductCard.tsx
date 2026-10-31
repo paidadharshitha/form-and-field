@@ -43,9 +43,10 @@ export function ProductCard({
           aria-label={`View details for ${product.title}`}
           onClick={() => actions.onOpen(product)}
         >
-          <ProductImage product={product} priority={priority} />
+          <ProductImage product={product} priority={priority} detailed />
           <span className="quick-view-label">
-            Quick view <ArrowUpRight size={14} aria-hidden="true" />
+            <span className="quick-view-text">View details</span>
+            <ArrowUpRight size={16} aria-hidden="true" />
           </span>
         </button>
         <button
@@ -66,7 +67,6 @@ export function ProductCard({
         )}
       </div>
       <div className="product-info">
-        <p className="product-category">{formatCategory(product.category)}</p>
         <h3 id={`product-${product.id}`}>
           <button
             className="product-title-button"
@@ -75,6 +75,15 @@ export function ProductCard({
             <HighlightedText text={product.title} query={query} />
           </button>
         </h3>
+        <p className="product-category">
+          {product.brand?.trim() && (
+            <>
+              <span className="product-brand">{product.brand.trim()}</span>
+              <span aria-hidden="true"> · </span>
+            </>
+          )}
+          {formatCategory(product.category)}
+        </p>
         <p className="list-description">{product.description}</p>
         <div className="product-meta">
           <span className="product-price">{formatPrice(product.price)}</span>

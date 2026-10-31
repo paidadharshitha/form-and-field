@@ -49,6 +49,57 @@ test('live API renders products and imagery', async ({ page, isMobile }) => {
       ratio: 1,
     });
   }
+  const device = isMobile ? 'mobile' : 'desktop';
+  const originalViewport = page.viewportSize();
+  const scrollToCards = async () => {
+    await cards.first().evaluate((element) =>
+      window.scrollTo({
+        top: element.getBoundingClientRect().top + window.scrollY - 110,
+        behavior: 'instant',
+      }),
+    );
+  };
+  await scrollToCards();
+  await page.screenshot({ path: `/tmp/form-field-cards-${device}.png` });
+  const detailImage = await firstImage.evaluate((image) => ({
+    source: image instanceof HTMLImageElement ? image.currentSrc : '',
+    naturalWidth: image instanceof HTMLImageElement ? image.naturalWidth : 0,
+    renderedWidth: image.getBoundingClientRect().width,
+  }));
+  const thumbnailWidth = await page.evaluate(
+    (source) =>
+      new Promise<number>((resolve) => {
+        const image = new Image();
+        image.onload = () => resolve(image.naturalWidth);
+        image.onerror = () => resolve(0);
+        image.src = source;
+      }),
+    products[0].thumbnail,
+  );
+  const pricePositions = await cards
+    .locator('.product-price')
+    .evaluateAll((prices) =>
+      prices.slice(0, 3).map((price) => price.getBoundingClientRect().top),
+    );
+  console.log(
+    JSON.stringify({ device, detailImage, thumbnailWidth, pricePositions }),
+  );
+  await page.getByRole('button', { name: 'List view', exact: true }).click();
+  await scrollToCards();
+  await page.screenshot({ path: `/tmp/form-field-list-${device}.png` });
+  await page.getByRole('button', { name: 'Grid view', exact: true }).click();
+  const spotWidth = isMobile ? 320 : 850;
+  await page.setViewportSize({ width: spotWidth, height: 1000 });
+  await scrollToCards();
+  await expect
+    .poll(() =>
+      page.evaluate(
+        () => document.documentElement.scrollWidth <= window.innerWidth,
+      ),
+    )
+    .toBe(true);
+  await page.screenshot({ path: `/tmp/form-field-cards-${spotWidth}.png` });
+  if (originalViewport) await page.setViewportSize(originalViewport);
   await page
     .getByRole('button', { name: 'Help me choose', exact: true })
     .click();
@@ -132,6 +183,16 @@ test('live API renders products and imagery', async ({ page, isMobile }) => {
   await page.screenshot({
     path: `/tmp/form-field-reviews-${isMobile ? 'mobile' : 'desktop'}.png`,
   });
+  const related = quickView.getByRole('region', {
+    name: 'Similar products',
+    exact: true,
+  });
+  if (await related.count()) {
+    await related.evaluate((element) =>
+      element.scrollIntoView({ block: 'center', behavior: 'instant' }),
+    );
+    await page.screenshot({ path: `/tmp/form-field-related-${device}.png` });
+  }
   await quickView
     .getByRole('button', { name: `Save ${galleryProduct.title}`, exact: true })
     .click();
