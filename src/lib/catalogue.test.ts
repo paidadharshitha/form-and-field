@@ -480,6 +480,65 @@ describe('categories', () => {
 });
 
 describe('parseProducts', () => {
+  const review = {
+    rating: 2,
+    comment: 'The finish was not what I expected.',
+    date: '2025-04-30T09:41:02.053Z',
+    reviewerName: 'Alex Morgan',
+  };
+
+  it('preserves supplied reviews separately from the catalogue rating and discards private or unused review fields', () => {
+    const sourceReview = {
+      ...review,
+      reviewerEmail: 'alex@example.com',
+      internal: { source: 'unused' },
+    };
+    const parsed = parseProducts({
+      products: [{ ...products[0], reviews: [sourceReview] }],
+    })[0];
+    expect(parsed.rating).toBe(products[0].rating);
+    expect(parsed.reviews).toEqual([review]);
+    expect(parsed.reviews?.[0]).not.toBe(sourceReview);
+    expect(parsed.reviews?.[0]).not.toHaveProperty('reviewerEmail');
+    expect(parsed.reviews?.[0]).not.toHaveProperty('internal');
+    expect(sourceReview.reviewerEmail).toBe('alex@example.com');
+  });
+
+  it('accepts omitted or empty reviews and reviews without a written comment', () => {
+    expect(parseProducts({ products: [products[0]] })[0]).not.toHaveProperty(
+      'reviews',
+    );
+    expect(
+      parseProducts({ products: [{ ...products[0], reviews: [] }] })[0].reviews,
+    ).toEqual([]);
+    expect(
+      parseProducts({
+        products: [{ ...products[0], reviews: [{ ...review, comment: '' }] }],
+      })[0].reviews?.[0].comment,
+    ).toBe('');
+  });
+
+  it.each([
+    null,
+    {},
+    'reviews',
+    [null],
+    [{ ...review, rating: 0 }],
+    [{ ...review, rating: 6 }],
+    [{ ...review, rating: 2.5 }],
+    [{ ...review, rating: '5' }],
+    [{ ...review, rating: Infinity }],
+    [{ ...review, comment: null }],
+    [{ ...review, date: 'not a date' }],
+    [{ ...review, date: '' }],
+    [{ ...review, date: 1746000000000 }],
+    [{ ...review, reviewerName: ' ' }],
+  ])('rejects malformed supplied reviews %o', (reviews) => {
+    expect(() =>
+      parseProducts({ products: [{ ...products[0], reviews }] }),
+    ).toThrow(/invalid catalogue data/);
+  });
+
   it('accepts optional image galleries, preserves order, and removes duplicate URLs', () => {
     const images = [
       'https://example.com/front.webp',

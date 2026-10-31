@@ -6,10 +6,10 @@
   width: 100%;
   aspect-ratio: 1;
   overflow: hidden;
-  background: #efeee7;
+  background: var(--surface);
   border-radius: 12px;
   scrollbar-width: thin;
-  scrollbar-color: #7d8a72 #e1e4d8;
+  scrollbar-color: var(--scrollbar) var(--surface);
 }
 .gallery-canvas {
   display: grid;
@@ -48,7 +48,7 @@
   min-height: 48px;
 }
 .gallery-position {
-  color: #65705d;
+  color: var(--muted);
   font-size: 11px;
   font-variant-numeric: tabular-nums;
 }
@@ -60,20 +60,20 @@
   min-height: 40px;
   padding: 0 10px;
   margin-right: -10px;
-  color: var(--green);
+  color: var(--accent);
   font-size: 11px;
   border-radius: 5px;
 }
 .gallery-zoom:hover:not(:disabled),
 .gallery-zoom[aria-pressed='true'] {
-  background: var(--soft-green);
+  background: var(--accent-soft);
 }
 .gallery-zoom:disabled {
   cursor: not-allowed;
 }
 .gallery-hint {
   margin-bottom: 10px;
-  color: #65705d;
+  color: var(--muted);
   font-size: 10px;
   line-height: 1.6;
 }
@@ -85,7 +85,7 @@
   padding: 5px 3px 8px;
   margin-inline: -3px;
   scrollbar-width: thin;
-  scrollbar-color: #a5aea2 var(--paper);
+  scrollbar-color: var(--scrollbar) var(--paper);
 }
 .gallery-thumbnail {
   display: grid;
@@ -94,10 +94,11 @@
   width: 59px;
   height: 59px;
   padding: 5px;
-  border: 1px solid #dce0d5;
-  border-radius: 6px;
-  background: #f2f2eb;
-  color: #65705d;
+  border: 1px solid var(--line);
+
+  border-radius: 8px;
+  background: var(--surface);
+  color: var(--muted);
 }
 .gallery-thumbnail > img {
   width: 100%;
@@ -106,12 +107,12 @@
   mix-blend-mode: multiply;
 }
 .gallery-thumbnail:hover {
-  background: #e9eee2;
+  background: var(--accent-soft);
 }
 .gallery-thumbnail[aria-pressed='true'] {
-  border: 2px solid var(--green);
+  border: 2px solid var(--accent);
   padding: 4px;
-  background: #e9eee2;
+  background: var(--accent-soft);
 }
 .product-strip {
   min-width: 0;
@@ -128,15 +129,18 @@
 }
 .product-strip-header h2,
 .product-strip-header h3 {
-  font-family: 'DM Serif Display', serif;
-  font-size: 26px;
+  font-family: var(--font-display);
+
+  font-size: 23px;
   line-height: 1.25;
-  font-weight: 400;
-  letter-spacing: -0.02em;
+
+  font-weight: 600;
+
+  letter-spacing: -0.03em;
 }
 .product-strip-header p {
   margin-top: 7px;
-  color: #65705d;
+  color: var(--muted);
   font-size: 12px;
   line-height: 1.7;
 }
@@ -147,8 +151,10 @@
 .product-strip-list {
   display: grid;
   grid-auto-flow: column;
-  grid-auto-columns: 150px;
-  gap: 16px;
+
+  grid-auto-columns: 170px;
+
+  gap: 14px;
   margin: 0 -5px;
   padding: 5px 5px 15px;
   list-style: none;
@@ -156,7 +162,7 @@
   overscroll-behavior-x: contain;
   scroll-snap-type: x proximity;
   scrollbar-width: thin;
-  scrollbar-color: #a5aea2 var(--paper);
+  scrollbar-color: var(--scrollbar) var(--paper);
 }
 .product-strip-list > li {
   min-width: 0;
@@ -167,8 +173,12 @@
   flex-direction: column;
   align-items: stretch;
   width: 100%;
-  padding: 0;
+
+  padding: 10px;
   text-align: left;
+  border: 1px solid var(--line);
+  border-radius: 12px;
+  background: var(--paper);
 }
 .product-strip-image {
   position: relative;
@@ -177,11 +187,12 @@
   aspect-ratio: 1.12;
   width: 100%;
   margin-bottom: 12px;
-  border-radius: 10px;
-  background: #efeee7;
+
+  border-radius: 8px;
+  background: var(--surface);
 }
 .product-strip-list > li:nth-child(even) .product-strip-image {
-  background: #edf0e8;
+  background: var(--surface-blue);
 }
 .product-strip-image > img {
   display: block;
@@ -198,7 +209,7 @@
   place-items: center;
   width: 25px;
   height: 25px;
-  color: var(--green);
+  color: var(--accent);
   background: var(--paper);
   border-radius: 50%;
   opacity: 0;
@@ -209,18 +220,21 @@
   opacity: 1;
 }
 .product-strip-name {
-  min-height: 36px;
-  color: #29342a;
-  font-size: 12px;
+  min-height: 39px;
+  color: var(--ink);
+
+  font-size: 13px;
   line-height: 1.5;
   font-weight: 500;
   overflow-wrap: anywhere;
 }
 .product-strip-price {
   margin-top: 8px;
-  color: var(--green);
-  font-size: 12px;
-  font-weight: 500;
+  color: var(--accent);
+
+  font-size: 13px;
+
+  font-weight: 600;
   font-variant-numeric: tabular-nums;
 }
 .product-strip .image-fallback {
@@ -250,13 +264,13 @@
   }
   .product-strip-header h2,
   .product-strip-header h3 {
-    font-size: 24px;
+    font-size: 21px;
   }
   .product-strip-header p {
     font-size: 11px;
   }
   .product-strip-list {
-    grid-auto-columns: 137px;
+    grid-auto-columns: 150px;
     gap: 13px;
   }
   .product-strip-arrow {

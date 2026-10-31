@@ -1,20 +1,51 @@
 # Form & Field visual system
 
-The catalogue is a task-focused surface with the quiet character of an independent department store. Warm paper, forest-green controls, serif display typography, and generously spaced product photographs give the collection a consistent identity without competing with product names and prices.
+The user selected a **clean white and cobalt blue** direction. The catalogue uses a bright, precise interface that keeps products and decisions prominent: crisp white surfaces, slate text, cobalt actions, and authentic product photography on pale neutral or blue image backgrounds.
 
-- Display: self-hosted DM Serif Display. Interface: self-hosted DM Sans.
-- Background: #fcfbf8. Primary ink: #252c27. Accent: #254b3f.
-- Desktop: bounded page width, persistent category/price sidebar, three-column product grid.
-- Phone: two-column product grid, visible search/sort, filters in a native modal dialog with keyboard focus management.
-- An optional list layout adds readable descriptions while preserving the same product actions and filter state.
-- Illustrated category shortcuts use actual catalogue product images and act as category controls. They inherit the warm neutral image surfaces and green interaction cues.
-- Product images and titles open quick view. Heart controls save a product, and a separate comparison control makes the two actions distinct. Selected states use shape, text, and pressed semantics in addition to color.
-- A compact comparison tray appears after selection and supports at most three products. The detail table remains inside a horizontally scrollable region on small screens.
-- Quick view and comparison use the same dialog system, with native focus containment and explicit close controls. Their content uses supplied product metadata and the same price/rating typography as the catalogue.
-- The Saved view is part of the existing results area, with an empty collection state and clear wording when persistence is unavailable.
-- Product names wrap; price/rating figures use tabular numerals. All controls have focus states, and motion respects reduced-motion preferences.
-- Loading, error/retry, invalid range, no-match, empty wishlist, comparison limits, and unavailable images are intentional parts of the same surface.
-- Search suggestions sit directly below the search field, with product images and prices, keyboard navigation, and an explicit close-match explanation for typo results. Brand uses the existing native-select vocabulary.
-- Quick view's gallery keeps photo selection and zoom inside the same dialog. Similar products and recently viewed reuse a compact horizontal product strip; history sits below the main catalogue so returning-visit features do not crowd primary discovery.
+## Foundations
 
-The optional Impeccable context/seed launcher was unavailable in this environment. The direction follows the supplied professional catalogue brief.
+| Role             | Token            | Value     |
+| ---------------- | ---------------- | --------- |
+| Canvas           | `--paper`        | `#ffffff` |
+| Primary text     | `--ink`          | `#172033` |
+| Secondary text   | `--muted`        | `#5d697c` |
+| Primary action   | `--accent`       | `#2457e7` |
+| Action hover     | `--accent-hover` | `#1742bd` |
+| Selected surface | `--accent-soft`  | `#edf3ff` |
+| Neutral surface  | `--surface`      | `#f5f7fb` |
+| Image surface    | `--surface-blue` | `#f0f5ff` |
+| Divider          | `--line`         | `#dce3ef` |
+| Control boundary | `--line-strong`  | `#8391a8` |
+
+The earlier green token names remain compatibility aliases to cobalt; they do not define a second palette. Emerald is reserved for stock availability, amber for rating symbols, and red for errors. Secondary text and action colors maintain at least 4.5:1 contrast on the shared white and pale surfaces.
+
+All typography uses self-hosted **DM Sans**, with 400, 500, and 600 weights. Display and dialog headings use weight 600 and tight but readable tracking. Product names wrap, prices and ratings use tabular numerals, and the interface avoids tiny decorative labels. The brand name remains Form & Field.
+
+## Composition
+
+- A white sticky header holds the compact wordmark, catalogue navigation, and Saved control. Cobalt identifies the active navigation item and action states.
+- The opening headline uses strong sans-serif typography. Illustrated category shortcuts provide direct entry points using actual catalogue product images.
+- Search is the primary full-width discovery control. Suggestions stay attached to it, with real product images and prices, keyboard selection, and clear wording for close matches.
+- Desktop uses a bounded content width, a persistent filter sidebar, and three product columns; large screens can show four columns. Phones keep two columns and place filters in a native dialog.
+- Product cards use a light border, a 12–14px outer radius, clear image surfaces, and distinct save, quick-view, and comparison actions. A selected comparison changes the card boundary to cobalt.
+- List view uses separated rows with readable descriptions. It keeps the same actions and filters without nesting another card around each row.
+
+## Decision tools and details
+
+The guided finder, recommendation highlights, recovery suggestions, reviews, sharing controls, and undo feedback use the same tokens and type hierarchy. They support the main browsing task instead of creating a separate visual system. Forms use visible labels, native controls where practical, and compact action groups. Selected states have text or pressed semantics in addition to color.
+
+Quick view, reviews, and comparison use white detail surfaces. Native dialogs contain focus and provide explicit close controls. Dialog headings use the same sans-serif voice as the page; descriptions and metadata use slate text. Gallery thumbnails, zoom controls, and selected photos use cobalt boundaries and pale surfaces.
+
+The comparison tray appears only after products are selected. Its floating white surface uses a soft offset shadow; the table itself uses crisp dividers and remains horizontally scrollable inside its own region on phones. Lowest-price and highest-rating labels refer only to the currently selected products.
+
+Similar products and recently viewed reuse compact bordered product strips. The recent-history section stays below the main catalogue. Wishlist, recent-history, and undo states clearly distinguish persistent browser storage from session-only fallback behavior.
+
+## Interaction and states
+
+- Primary buttons use cobalt with white text; secondary buttons use white or pale surfaces with cobalt text. Controls use 7–8px radii and visible keyboard focus.
+- Cards use borders for separation. Shadows are reserved for floating suggestions, dialogs, trays, and feedback.
+- Text selection, caret, scrollbars, and focus rings belong to the same palette. Product imagery remains authentic; no gradient text, decorative blur, or fabricated commercial promises are introduced.
+- Loading, request failure, missing images, invalid ranges, empty results, empty saved items, comparison limits, and storage failures have deliberate states.
+- Motion is restrained. Existing product transitions and the comparison tray entrance respect reduced-motion preferences.
+
+The optional Impeccable context and concept launcher was unavailable in this environment. The selected direction comes directly from the user's white-and-cobalt choice.

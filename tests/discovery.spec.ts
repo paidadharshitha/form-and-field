@@ -285,6 +285,10 @@ test('recently viewed stays usable when browser storage is unavailable', async (
   await expect(
     page.getByRole('dialog', { name: 'Silk Lipstick', exact: true }),
   ).toBeVisible();
+  await page.keyboard.press('Escape');
+  await expect
+    .poll(() => new URL(page.url()).searchParams.get('product'))
+    .toBeNull();
   await page.reload();
   await expect(productTitles(page)).toHaveCount(5);
   await expect(
@@ -473,7 +477,8 @@ test('similar products open inside the current page and update viewing history',
   });
   await expect(nextDialog).toBeVisible();
   await expect(page.getByRole('dialog')).toHaveCount(1);
-  expect(page.url()).toBe(originalUrl);
+  expect(new URL(page.url()).pathname).toBe(new URL(originalUrl).pathname);
+  expect(new URL(page.url()).searchParams.get('product')).toBe('2');
   await expect
     .poll(() =>
       page.evaluate(() =>

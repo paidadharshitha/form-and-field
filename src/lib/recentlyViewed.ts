@@ -15,3 +15,14 @@ export function rememberProduct(ids: readonly number[], id: number): number[] {
     RECENTLY_VIEWED_LIMIT,
   );
 }
+
+/** Preserve views made after clearing when the visitor restores older history. */
+export function restoreRecentlyViewed(
+  current: readonly number[],
+  previous: readonly number[],
+): number[] {
+  return [...new Set([...current, ...previous].filter(isProductId))].slice(
+    0,
+    RECENTLY_VIEWED_LIMIT,
+  );
+}

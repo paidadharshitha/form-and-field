@@ -73,5 +73,14 @@ export function useSavedProducts() {
     }));
   }
 
-  return { ...state, toggleSaved };
+  function restoreSaved(id: number) {
+    if (!isProductId(id)) return;
+    setState((current) =>
+      current.savedIds.includes(id)
+        ? current
+        : { ...current, savedIds: [...current.savedIds, id] },
+    );
+  }
+
+  return { ...state, toggleSaved, restoreSaved };
 }

@@ -11,6 +11,7 @@ interface CompareDialogProps {
   onRemove: (id: number) => void;
   onSave: (id: number) => void;
   savedIds: readonly number[];
+  feedback?: ReactNode;
 }
 
 export function CompareDialog({
@@ -19,6 +20,7 @@ export function CompareDialog({
   onRemove,
   onSave,
   savedIds,
+  feedback,
 }: CompareDialogProps) {
   const table = useRef<HTMLTableElement>(null);
   const removedIndex = useRef<number | null>(null);
@@ -202,6 +204,7 @@ export function CompareDialog({
               </tbody>
             </table>
           </div>
+          {feedback}
           <div className="compare-footer">
             <p>Prices are shown in USD.</p>
             <button

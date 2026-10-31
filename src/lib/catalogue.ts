@@ -1,3 +1,10 @@
+export interface ProductReview {
+  rating: number;
+  comment: string;
+  date: string;
+  reviewerName: string;
+}
+
 export interface Product {
   id: number;
   title: string;
@@ -7,6 +14,7 @@ export interface Product {
   rating: number;
   thumbnail: string;
   images?: string[];
+  reviews?: ProductReview[];
   brand?: string;
   stock: number;
 }
@@ -308,6 +316,24 @@ function isImageList(value: unknown): value is string[] {
   return isArray(value) && value.every(isImageUrl);
 }
 
+function isReviewList(value: unknown): value is ProductReview[] {
+  return (
+    isArray(value) &&
+    value.every(
+      (review) =>
+        isRecord(review) &&
+        typeof review.rating === 'number' &&
+        Number.isInteger(review.rating) &&
+        review.rating >= 1 &&
+        review.rating <= 5 &&
+        typeof review.comment === 'string' &&
+        isText(review.reviewerName) &&
+        isText(review.date) &&
+        Number.isFinite(Date.parse(review.date)),
+    )
+  );
+}
+
 /** Validate external data before it reaches the UI; never cast JSON to Product[]. */
 export function parseProducts(payload: unknown): Product[] {
   if (!isRecord(payload) || !isArray(payload.products)) {
@@ -329,6 +355,7 @@ export function parseProducts(payload: unknown): Product[] {
       item.rating > 5 ||
       !isImageUrl(item.thumbnail) ||
       (item.images !== undefined && !isImageList(item.images)) ||
+      (item.reviews !== undefined && !isReviewList(item.reviews)) ||
       !isNonnegativeNumber(item.stock) ||
       !Number.isInteger(item.stock) ||
       (item.brand !== undefined && typeof item.brand !== 'string')
@@ -351,6 +378,17 @@ export function parseProducts(payload: unknown): Product[] {
       ...(item.images === undefined
         ? {}
         : { images: [...new Set(item.images)] }),
+      // Retain only display fields. Reviewer email addresses never enter app state.
+      ...(item.reviews === undefined
+        ? {}
+        : {
+            reviews: item.reviews.map((review) => ({
+              rating: review.rating,
+              comment: review.comment,
+              date: review.date,
+              reviewerName: review.reviewerName,
+            })),
+          }),
       stock: item.stock,
       ...(item.brand === undefined ? {} : { brand: item.brand }),
     };

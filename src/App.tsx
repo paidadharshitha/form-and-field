@@ -6,11 +6,15 @@ import { CategorySpotlights } from './components/CategorySpotlights';
 import { CompareDialog } from './components/CompareDialog';
 import { CompareTray } from './components/CompareTray';
 import { FilterPanel } from './components/FilterPanel';
+import { GuidedFinder } from './components/GuidedFinder';
 import { MobileFilters } from './components/MobileFilters';
 import { ProductQuickView } from './components/ProductQuickView';
 import { ProductResults } from './components/ProductResults';
 import { ProductStrip } from './components/ProductStrip';
 import { SearchBar } from './components/SearchBar';
+import { UndoNotice } from './components/UndoNotice';
+import { getFilterSuggestions } from './lib/guidance';
+import { buildProductLink } from './lib/productLink';
 import { useCatalogueState } from './hooks/useCatalogueState';
 import { useProducts } from './hooks/useProducts';
 import { useRecentlyViewed } from './hooks/useRecentlyViewed';
@@ -24,7 +28,13 @@ import {
   searchProducts,
   validatePriceRange,
   type Product,
+  type Filters,
+  type SortOption,
 } from './lib/catalogue';
+
+type UndoAction =
+  | { kind: 'saved'; id: number; title: string }
+  | { kind: 'history'; ids: number[] };
 
 function Brand({ small = false }: { small?: boolean }) {
   return (
@@ -47,31 +57,57 @@ function Brand({ small = false }: { small?: boolean }) {
 
 export default function App() {
   const { products, status, retry } = useProducts();
-  const { filters, sort, setFilter, setSort, clearFilters } =
-    useCatalogueState();
-  const { savedIds, toggleSaved, storageAvailable } = useSavedProducts();
+  const {
+    filters,
+    sort,
+    setFilter,
+    setSort,
+    clearFilters,
+    linkedProduct,
+    selectProduct,
+    applyFilters,
+  } = useCatalogueState();
+  const { savedIds, toggleSaved, restoreSaved, storageAvailable } =
+    useSavedProducts();
   const {
     recentIds,
     recordView,
     clearHistory,
+    restoreHistory,
     storageAvailable: historyAvailable,
   } = useRecentlyViewed();
   const [mobileFiltersOpen, setMobileFiltersOpen] = useState(false);
   const [savedView, setSavedView] = useState(false);
   const [view, setView] = useState<'grid' | 'list'>('grid');
-  const [quickView, setQuickView] = useState<Product | null>(null);
+  const quickView =
+    products.find((product) => String(product.id) === linkedProduct) ?? null;
+  const [undoAction, setUndoAction] = useState<UndoAction | null>(null);
   const [compareIds, setCompareIds] = useState<number[]>([]);
   const [compareOpen, setCompareOpen] = useState(false);
   const focusAfterRemoval = useRef<string | null>(null);
+  const lastViewed = useRef<number | null>(null);
+
+  useEffect(() => {
+    if (quickView && lastViewed.current !== quickView.id) {
+      lastViewed.current = quickView.id;
+      recordView(quickView.id);
+    } else if (!quickView) {
+      lastViewed.current = null;
+    }
+  }, [quickView, recordView]);
 
   useEffect(() => {
     if (focusAfterRemoval.current) {
-      document
-        .getElementById(focusAfterRemoval.current)
-        ?.focus({ preventScroll: true });
+      const target =
+        focusAfterRemoval.current === 'dialog-close'
+          ? document.querySelector<HTMLButtonElement>(
+              '.catalogue-dialog[open] .dialog-close',
+            )
+          : document.getElementById(focusAfterRemoval.current);
+      target?.focus({ preventScroll: true });
       focusAfterRemoval.current = null;
     }
-  }, [savedIds, compareIds]);
+  }, [savedIds, compareIds, recentIds, undoAction, filters]);
 
   const savedProducts = useMemo(
     () => products.filter((product) => savedIds.includes(product.id)),
@@ -104,6 +140,13 @@ export default function App() {
     [sourceProducts, filters, sort],
   );
   const count = priceError ? 0 : results.length;
+  const recoverySuggestions = useMemo(
+    () =>
+      status === 'success' && !priceError && results.length === 0
+        ? getFilterSuggestions(sourceProducts, filters)
+        : [],
+    [sourceProducts, filters, results.length, priceError, status],
+  );
   const filterCount =
     Number(Boolean(filters.category)) +
     Number(Boolean(filters.brand)) +
@@ -133,11 +176,39 @@ export default function App() {
   };
 
   function openProduct(product: Product) {
-    recordView(product.id);
-    setQuickView(product);
+    selectProduct(product.id);
+  }
+
+  function applyFinder(nextFilters: Filters, nextSort: SortOption) {
+    setSavedView(false);
+    applyFilters(nextFilters, nextSort);
+    focusAfterRemoval.current = 'results-heading';
+    scrollToCatalogue();
+  }
+
+  function undoLastAction() {
+    if (!undoAction) return;
+    if (undoAction.kind === 'saved') restoreSaved(undoAction.id);
+    else restoreHistory(undoAction.ids);
+    focusAfterRemoval.current =
+      quickView || compareOpen ? 'dialog-close' : 'results-heading';
+    setUndoAction(null);
+  }
+
+  function dismissUndo() {
+    focusAfterRemoval.current =
+      quickView || compareOpen ? 'dialog-close' : 'results-heading';
+    setUndoAction(null);
+  }
+
+  function clearViewedHistory() {
+    setUndoAction({ kind: 'history', ids: [...recentIds] });
+    clearHistory();
+    focusAfterRemoval.current = 'results-heading';
   }
 
   function saveProduct(id: number) {
+    const wasSaved = savedIds.includes(id);
     if (
       savedView &&
       savedIds.includes(id) &&
@@ -150,6 +221,18 @@ export default function App() {
         : 'results-heading';
     }
     toggleSaved(id);
+    if (wasSaved) {
+      setUndoAction({
+        kind: 'saved',
+        id,
+        title:
+          products.find((product) => product.id === id)?.title ?? 'Product',
+      });
+    } else {
+      setUndoAction((current) =>
+        current?.kind === 'saved' && current.id === id ? null : current,
+      );
+    }
   }
   function toggleCompare(id: number) {
     setCompareIds((current) =>
@@ -195,6 +278,17 @@ export default function App() {
     onSave: saveProduct,
     onCompare: toggleCompare,
   };
+  const undoFeedback = undoAction ? (
+    <UndoNotice
+      message={
+        undoAction.kind === 'saved'
+          ? `${undoAction.title} removed from Saved.`
+          : 'Recently viewed history cleared.'
+      }
+      onUndo={undoLastAction}
+      onDismiss={dismissUndo}
+    />
+  ) : null;
 
   return (
     <div id="top" className={compareIds.length ? 'has-comparison' : undefined}>
@@ -258,6 +352,24 @@ export default function App() {
             }}
           />
         </section>
+        {status === 'success' && (
+          <GuidedFinder
+            categories={categories}
+            currentFilters={filters}
+            onApply={applyFinder}
+          />
+        )}
+        {linkedProduct && !quickView && status === 'success' && (
+          <div className="linked-product-note" role="status">
+            <p>
+              This product link is unavailable. You can still explore the
+              catalogue.
+            </p>
+            <button className="text-button" onClick={() => selectProduct(null)}>
+              Dismiss product link
+            </button>
+          </div>
+        )}
         <div className="search-row">
           <SearchBar
             query={filters.query}
@@ -352,6 +464,11 @@ export default function App() {
               view={view}
               emptySaved={savedView && savedProducts.length === 0}
               onBrowseAll={browseAll}
+              suggestions={recoverySuggestions}
+              onApplySuggestion={(nextFilters) => {
+                applyFilters(nextFilters);
+                focusAfterRemoval.current = 'results-heading';
+              }}
             />
           </section>
         </div>
@@ -366,15 +483,7 @@ export default function App() {
             products={recentlyViewed}
             onOpen={openProduct}
             action={
-              <button
-                className="text-button"
-                onClick={() => {
-                  clearHistory();
-                  document
-                    .getElementById('results-heading')
-                    ?.focus({ preventScroll: true });
-                }}
-              >
+              <button className="text-button" onClick={clearViewedHistory}>
                 Clear recently viewed
               </button>
             }
@@ -399,6 +508,9 @@ export default function App() {
           </div>
         </div>
       </footer>
+      {undoFeedback && !quickView && !compareOpen && !mobileFiltersOpen && (
+        <div className="global-feedback">{undoFeedback}</div>
+      )}
       <CompareTray
         products={comparedProducts}
         onRemove={removeCompared}
@@ -409,9 +521,9 @@ export default function App() {
         <ProductQuickView
           product={quickView}
           storageAvailable={storageAvailable}
-          onClose={() => setQuickView(null)}
+          onClose={() => selectProduct(null)}
           saved={savedIds.includes(quickView.id)}
-          onSave={() => toggleSaved(quickView.id)}
+          onSave={() => saveProduct(quickView.id)}
           compared={compareIds.includes(quickView.id)}
           compareDisabled={
             !compareIds.includes(quickView.id) && compareIds.length >= 3
@@ -419,6 +531,8 @@ export default function App() {
           onCompare={() => toggleCompare(quickView.id)}
           similarProducts={similarProducts}
           onOpenProduct={openProduct}
+          shareUrl={buildProductLink(window.location.href, quickView.id)}
+          feedback={undoFeedback}
         />
       )}
       {compareOpen && comparedProducts.length > 0 && (
@@ -426,8 +540,9 @@ export default function App() {
           products={comparedProducts}
           onClose={() => setCompareOpen(false)}
           onRemove={removeCompared}
-          onSave={toggleSaved}
+          onSave={saveProduct}
           savedIds={savedIds}
+          feedback={undoFeedback}
         />
       )}
       {mobileFiltersOpen && (

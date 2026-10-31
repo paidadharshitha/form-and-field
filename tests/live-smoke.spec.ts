@@ -42,6 +42,32 @@ test('live API renders products and imagery', async ({ page, isMobile }) => {
   await page.screenshot({
     path: `/tmp/form-field-${isMobile ? 'mobile' : 'desktop'}.png`,
   });
+  if (isMobile) {
+    await expect(
+      cards.first().getByRole('heading', { level: 3 }),
+    ).toBeInViewport({
+      ratio: 1,
+    });
+  }
+  await page
+    .getByRole('button', { name: 'Help me choose', exact: true })
+    .click();
+  const finder = page.getByRole('region', {
+    name: 'Guided product finder',
+    exact: true,
+  });
+  await expect(
+    finder.getByRole('button', { name: 'Find my matches', exact: true }),
+  ).toBeVisible();
+  await finder.evaluate((element) =>
+    element.scrollIntoView({ block: 'center', behavior: 'instant' }),
+  );
+  await page.screenshot({
+    path: `/tmp/form-field-finder-${isMobile ? 'mobile' : 'desktop'}.png`,
+  });
+  await finder
+    .getByRole('button', { name: 'Close finder', exact: true })
+    .click();
 
   const galleryProduct =
     products
@@ -90,6 +116,45 @@ test('live API renders products and imagery', async ({ page, isMobile }) => {
   await page.screenshot({
     path: `/tmp/form-field-zoom-${isMobile ? 'mobile' : 'desktop'}.png`,
   });
+  await quickView
+    .getByRole('button', { name: 'Zoom out of product image', exact: true })
+    .click();
+  const reviews = quickView.getByRole('region', {
+    name: 'Reviews',
+    exact: true,
+  });
+  await reviews.evaluate((element) =>
+    element.scrollIntoView({ block: 'center', behavior: 'instant' }),
+  );
+  await expect(
+    reviews.getByRole('heading', { name: 'Reviews', exact: true }),
+  ).toBeInViewport();
+  await page.screenshot({
+    path: `/tmp/form-field-reviews-${isMobile ? 'mobile' : 'desktop'}.png`,
+  });
+  await quickView
+    .getByRole('button', { name: `Save ${galleryProduct.title}`, exact: true })
+    .click();
+  await quickView
+    .getByRole('button', {
+      name: `Unsave ${galleryProduct.title}`,
+      exact: true,
+    })
+    .click();
+  const undoMessage = quickView.getByText(
+    `${galleryProduct.title} removed from Saved.`,
+    { exact: true },
+  );
+  await expect(undoMessage).toBeVisible();
+  await undoMessage.evaluate((element) =>
+    element.scrollIntoView({ block: 'center', behavior: 'instant' }),
+  );
+  await page.screenshot({
+    path: `/tmp/form-field-undo-${isMobile ? 'mobile' : 'desktop'}.png`,
+  });
+  await quickView
+    .getByRole('button', { name: 'Dismiss notification', exact: true })
+    .click();
   await page.keyboard.press('Escape');
   await expect(quickView).not.toBeVisible();
 
@@ -140,6 +205,18 @@ test('live API renders products and imagery', async ({ page, isMobile }) => {
   await page.evaluate(() => window.scrollTo({ top: 0 }));
   await page.screenshot({
     path: `/tmp/form-field-suggestions-${isMobile ? 'mobile' : 'desktop'}.png`,
+  });
+  await page.goto('/?brand=__missing_brand__');
+  const recovery = page.getByRole('group', {
+    name: 'Ways to find a match',
+    exact: true,
+  });
+  await expect(recovery).toBeVisible();
+  await recovery.evaluate((element) =>
+    element.scrollIntoView({ block: 'center', behavior: 'instant' }),
+  );
+  await page.screenshot({
+    path: `/tmp/form-field-empty-${isMobile ? 'mobile' : 'desktop'}.png`,
   });
   expect(errors).toEqual([]);
 });

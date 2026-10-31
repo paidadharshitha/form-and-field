@@ -1,0 +1,64 @@
+.global-feedback {
+  position: fixed;
+  top: 102px;
+  right: max(24px, calc((100vw - 1320px) / 2));
+  z-index: 30;
+  width: min(460px, calc(100vw - 32px));
+}
+.undo-notice {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 12px 14px;
+  border-radius: 12px;
+  background: var(--accent-soft);
+  color: var(--ink);
+}
+.global-feedback .undo-notice {
+  background: var(--paper);
+  box-shadow: 0 12px 40px var(--shadow-ink);
+}
+.undo-notice p {
+  flex: 1;
+  min-width: 0;
+  overflow-wrap: anywhere;
+  font-size: 12px;
+  line-height: 1.6;
+}
+.undo-button {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  min-height: 44px;
+  color: var(--accent);
+  font-size: 12px;
+  font-weight: 600;
+}
+.undo-notice .icon-button {
+  flex-shrink: 0;
+  width: 36px;
+}
+.linked-product-note {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  padding: 16px;
+  margin-bottom: 24px;
+  border: 1px solid var(--line);
+  border-radius: 12px;
+  font-size: 13px;
+  line-height: 1.6;
+  background: var(--surface);
+}
+@media (max-width: 600px) {
+  .global-feedback {
+    top: 86px;
+    right: 16px;
+  }
+  .undo-notice {
+    gap: 9px;
+    padding: 10px 12px;
+  }
+}

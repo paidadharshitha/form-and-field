@@ -14,10 +14,15 @@ const sorts: SortOption[] = [
   'rating-asc',
 ];
 
-function readLocation(): { filters: Filters; sort: SortOption } {
+function readLocation(): {
+  filters: Filters;
+  sort: SortOption;
+  linkedProduct: string;
+} {
   const params = new URLSearchParams(window.location.search);
   const candidate = params.get('sort');
   return {
+    linkedProduct: params.get('product') ?? '',
     filters: {
       query: params.get('q') ?? '',
       category: params.get('category') ?? '',
@@ -51,6 +56,7 @@ export function useCatalogueState() {
       rating: normalizeRatingFilter(state.filters.minRating),
       stock: state.filters.inStockOnly ? '1' : '',
       sort: state.sort === 'featured' ? '' : state.sort,
+      product: state.linkedProduct,
     };
     for (const [key, value] of Object.entries(values)) {
       if (value) url.searchParams.set(key, value);
@@ -69,6 +75,17 @@ export function useCatalogueState() {
   return {
     ...state,
     setFilter,
+    selectProduct: (id: number | null) =>
+      setState((current) => ({
+        ...current,
+        linkedProduct: id === null ? '' : String(id),
+      })),
+    applyFilters: (filters: Filters, sort?: SortOption) =>
+      setState((current) => ({
+        ...current,
+        filters: { ...filters },
+        sort: sort ?? current.sort,
+      })),
     setSort: (sort: SortOption) =>
       setState((current) => ({ ...current, sort })),
     clearFilters: () =>

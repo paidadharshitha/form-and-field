@@ -3,6 +3,7 @@ import {
   parseRecentlyViewed,
   RECENTLY_VIEWED_KEY,
   rememberProduct,
+  restoreRecentlyViewed,
 } from '../lib/recentlyViewed';
 
 function readHistory() {
@@ -40,5 +41,7 @@ export function useRecentlyViewed() {
     recordView: (id: number) =>
       updateHistory(rememberProduct(state.recentIds, id)),
     clearHistory: () => updateHistory([]),
+    restoreHistory: (ids: readonly number[]) =>
+      updateHistory(restoreRecentlyViewed(state.recentIds, ids)),
   };
 }

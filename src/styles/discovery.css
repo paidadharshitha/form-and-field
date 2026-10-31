@@ -15,8 +15,9 @@
   right: 0;
   overflow: hidden;
   border-radius: 12px;
-  background: #fff;
-  box-shadow: 0 12px 32px #252c2721;
+  background: var(--paper);
+
+  box-shadow: 0 12px 32px var(--shadow-ink);
 }
 .suggestions-heading,
 .suggestions-hint {
@@ -26,7 +27,7 @@
   color: var(--muted);
 }
 .suggestions-heading {
-  color: var(--green);
+  color: var(--accent);
   font-weight: 600;
 }
 .suggestions-hint {
@@ -50,14 +51,14 @@
   min-height: 62px;
 }
 .search-suggestions [role='option'][aria-selected='true'] {
-  background: var(--soft-green);
-  color: var(--green);
+  background: var(--accent-soft);
+  color: var(--accent);
 }
 .suggestion-image {
   flex: 0 0 42px;
   width: 42px;
   height: 42px;
-  background: #f2f3ed;
+  background: var(--surface-blue);
   border-radius: 6px;
   overflow: hidden;
 }
@@ -76,16 +77,19 @@
 }
 .suggestion-name {
   flex: 1;
-  font-size: 12px;
+
+  font-size: 13px;
   line-height: 1.5;
   min-width: 0;
   overflow-wrap: anywhere;
 }
 .suggestion-price {
   flex-shrink: 0;
-  color: var(--green);
-  font-size: 12px;
+  color: var(--accent);
+
+  font-size: 13px;
   font-variant-numeric: tabular-nums;
+  font-weight: 500;
 }
 .brand-filter {
   margin-top: 30px;
@@ -102,9 +106,10 @@
 .fuzzy-search-note {
   margin: 0 0 20px;
   padding: 12px 14px;
-  border-radius: 7px;
-  background: var(--soft-green);
-  color: var(--green);
+
+  border-radius: 8px;
+  background: var(--accent-soft);
+  color: var(--accent);
   font-size: 12px;
   line-height: 1.65;
   overflow-wrap: anywhere;

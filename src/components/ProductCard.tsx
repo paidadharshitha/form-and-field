@@ -8,6 +8,7 @@ import {
 import { formatCategory, type Product } from '../lib/catalogue';
 import { formatPrice } from '../lib/format';
 import { ProductImage } from './ProductImage';
+import { HighlightedText } from './HighlightedText';
 
 export interface ProductActions {
   savedIds: readonly number[];
@@ -21,10 +22,12 @@ export function ProductCard({
   product,
   priority,
   actions,
+  query = '',
 }: {
   product: Product;
   priority: boolean;
   actions: ProductActions;
+  query?: string;
 }) {
   const saved = actions.savedIds.includes(product.id);
   const compared = actions.compareIds.includes(product.id);
@@ -69,7 +72,7 @@ export function ProductCard({
             className="product-title-button"
             onClick={() => actions.onOpen(product)}
           >
-            {product.title}
+            <HighlightedText text={product.title} query={query} />
           </button>
         </h3>
         <p className="list-description">{product.description}</p>

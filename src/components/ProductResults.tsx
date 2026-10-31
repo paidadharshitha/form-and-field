@@ -1,6 +1,7 @@
 import { ArrowDown, ArrowUpRight, Heart, SearchX, WifiOff } from 'lucide-react';
 import { useEffect, useRef, useState } from 'react';
-import type { Product } from '../lib/catalogue';
+import type { Filters, Product } from '../lib/catalogue';
+import type { FilterSuggestion } from '../lib/guidance';
 import { ProductCard, type ProductActions } from './ProductCard';
 
 interface ProductResultsProps {
@@ -14,6 +15,8 @@ interface ProductResultsProps {
   view: 'grid' | 'list';
   emptySaved: boolean;
   onBrowseAll: () => void;
+  suggestions?: FilterSuggestion[];
+  onApplySuggestion?: (filters: Filters) => void;
 }
 
 export function ProductResults({
@@ -27,6 +30,8 @@ export function ProductResults({
   view,
   emptySaved,
   onBrowseAll,
+  suggestions = [],
+  onApplySuggestion,
 }: ProductResultsProps) {
   const [visibleCount, setVisibleCount] = useState(24);
   const progress = useRef<HTMLParagraphElement>(null);
@@ -122,6 +127,26 @@ export function ProductResults({
           <br />
           Try a different search or give your filters a little room.
         </p>
+        {suggestions.length > 0 && onApplySuggestion && (
+          <div
+            className="filter-recovery"
+            role="group"
+            aria-label="Ways to find a match"
+          >
+            {suggestions.map((suggestion) => (
+              <button
+                key={suggestion.label}
+                onClick={() => onApplySuggestion(suggestion.filters)}
+              >
+                <span>{suggestion.label}</span>
+                <small>
+                  {suggestion.count} matching{' '}
+                  {suggestion.count === 1 ? 'product' : 'products'}
+                </small>
+              </button>
+            ))}
+          </div>
+        )}
         <button className="primary-button" onClick={onReset}>
           Clear all filters <ArrowUpRight size={16} />
         </button>
@@ -138,6 +163,7 @@ export function ProductResults({
             product={product}
             priority={index < 6}
             actions={actions}
+            query={query}
           />
         ))}
       </div>

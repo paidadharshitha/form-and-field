@@ -2,7 +2,7 @@ import { useEffect, useState } from 'react';
 import { parseProducts, type Product } from '../lib/catalogue';
 
 export const PRODUCTS_URL =
-  'https://dummyjson.com/products?limit=0&select=id,title,description,category,price,rating,thumbnail,images,brand,stock';
+  'https://dummyjson.com/products?limit=0&select=id,title,description,category,price,rating,thumbnail,images,reviews,brand,stock';
 
 type ProductState =
   | { status: 'loading'; products: Product[] }

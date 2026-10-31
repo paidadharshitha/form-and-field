@@ -3,6 +3,7 @@ import { useEffect, useId, useRef, useState } from 'react';
 import type { Product } from '../lib/catalogue';
 import { formatPrice } from '../lib/format';
 import { ProductImage } from './ProductImage';
+import { HighlightedText } from './HighlightedText';
 
 interface SearchBarProps {
   query: string;
@@ -153,7 +154,9 @@ export function SearchBar({
                 <span className="suggestion-image" aria-hidden="true">
                   <ProductImage product={product} />
                 </span>
-                <span className="suggestion-name">{product.title}</span>
+                <span className="suggestion-name">
+                  <HighlightedText text={product.title} query={query} />
+                </span>
                 <span className="suggestion-price">
                   {formatPrice(product.price)}
                 </span>

@@ -1,10 +1,12 @@
-import { useEffect, useId, useRef } from 'react';
+import { useEffect, useId, useRef, type ReactNode } from 'react';
 import { Check, GitCompareArrows, Heart, Star } from 'lucide-react';
 import { formatCategory, type Product } from '../lib/catalogue';
 import { formatAvailability, formatPrice } from '../lib/format';
 import { Dialog } from './Dialog';
 import { ProductGallery } from './ProductGallery';
 import { ProductStrip } from './ProductStrip';
+import { ProductReviews } from './ProductReviews';
+import { ShareProduct } from './ShareProduct';
 
 interface ProductQuickViewProps {
   product: Product;
@@ -17,6 +19,8 @@ interface ProductQuickViewProps {
   storageAvailable?: boolean;
   similarProducts?: Product[];
   onOpenProduct?: (product: Product) => void;
+  shareUrl?: string;
+  feedback?: ReactNode;
 }
 
 export function ProductQuickView({
@@ -30,6 +34,8 @@ export function ProductQuickView({
   storageAvailable = true,
   similarProducts = [],
   onOpenProduct,
+  shareUrl,
+  feedback,
 }: ProductQuickViewProps) {
   const limitNoteId = useId();
   const content = useRef<HTMLDivElement>(null);
@@ -122,6 +128,8 @@ export function ProductQuickView({
               Your comparison has 3 products. Remove one to add this find.
             </p>
           )}
+          {feedback && <div className="qv-feedback">{feedback}</div>}
+          {shareUrl && <ShareProduct url={shareUrl} />}
           <p className="qv-note">
             {storageAvailable
               ? 'Keep your favourites close. Your wishlist stays on this browser.'
@@ -129,6 +137,7 @@ export function ProductQuickView({
           </p>
         </div>
       </div>
+      <ProductReviews reviews={product.reviews} />
       {onOpenProduct && similarProducts.length > 0 && (
         <ProductStrip
           title="Similar products"

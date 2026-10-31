@@ -21,9 +21,16 @@ A responsive, single-page product catalogue built to help people find the right 
 </details>
 
 <details>
-<summary>View the image gallery and similar products</summary>
+<summary>View the product gallery and reviews</summary>
 
-![Product gallery with photo navigation, zoom, and similar products](docs/catalogue-gallery.png)
+![Product details with photo navigation, zoom, sharing, and sample reviews](docs/catalogue-gallery.png)
+
+</details>
+
+<details>
+<summary>View the guided product finder</summary>
+
+![Guided product finder with category, budget, and priority controls](docs/catalogue-finder.png)
 
 </details>
 
@@ -55,20 +62,26 @@ npm run test:e2e
 ## Using the catalogue
 
 - **Smart search:** name suggestions appear as you type and respect active filters. Use the arrow keys and Enter to select a suggestion, or tap it. Escape dismisses suggestions; pressing it again clears the search. Matching ignores case and surrounding whitespace. If there are no exact name matches, conservative typo matching offers close results with an explicit notice.
+- **Search highlights:** matching letters are highlighted in product names and suggestions. The original title stays intact; typo-corrected letters are not presented as exact matches.
+- **Guided finder:** choose **Help me choose**, select a category, maximum budget, and priority (highest rating or lowest price), then apply the shortlist. The form explains that these choices replace the current search and filters.
 - **Category:** choose one category, browse all products, or use the illustrated category shortcuts. Shortcuts update the category while preserving your other filters.
 - **Brand:** choose a brand from the supplied catalogue data. The same selector is available in the desktop sidebar and phone filter sheet, and the active brand can be removed individually.
 - **Price:** optional minimum and maximum prices, including both endpoints. Blank fields leave that end unrestricted. Invalid or reversed ranges show a helpful validation message.
 - **Rating and availability:** narrow the collection to ratings of 4+ or 4.5+, and optionally show only products with stock available.
 - **Sort:** featured order, price low to high or high to low, and rating high to low or low to high. Equal values use product ID as a deterministic tie-breaker. Featured preserves the API's original order.
 - **Combined filters:** every active condition must match. Removing a filter or clearing all filters restores results immediately.
+- **Smart empty results:** when nothing matches, one-click suggestions relax only filters that actually unlock results. The interface explains the change and previews the resulting match count. A full reset remains available.
 - **Shareable filters:** `q`, `category`, `brand`, `min`, `max`, `rating`, `stock`, and `sort` are reflected in the URL. For example, `?rating=4.5&stock=1&sort=price-asc` shows available products rated at least 4.5, cheapest first. Unsupported rating values are ignored.
 - **Progressive display:** 24 matching products appear initially; load more to see the next group. Filtering always searches the full collection, including products not yet displayed.
 - **Grid or list:** switch between image-led cards and a list with product descriptions while keeping the current filters and sort.
 - **Quick view:** open a product's image or title to inspect its description, brand when supplied, price, rating, and availability in a dialog.
+- **Product links:** **Copy product link** shares a URL with `product=<id>`, preserving current filters and the deployment path. Opening that link loads the product's details directly. Closing details removes the product parameter while keeping filters. If clipboard access is unavailable, a selectable link appears instead of a false success message.
+- **Reviews:** quick view displays the API's sample reviews, with reviewer name, date, rating, and comment. They are labeled as sample data; the catalogue rating is supplied separately. Reviewer email addresses are discarded during parsing and never displayed.
 - **Image gallery and zoom:** browse supplied product photos in quick view and zoom in for detail. Products with a single image still support zoom; missing galleries use the thumbnail.
 - **Recently viewed:** the last eight products you opened appear below the catalogue, newest first. Reopening a product moves it to the front. History survives reloads on this browser and can be cleared with one action.
 - **Similar products:** quick view offers up to four alternatives in the same category and within 50% of the current product's price, ordered by the closest price. Opening an alternative stays in the same dialog.
 - **Wishlist:** save products using the heart, then open **Saved** to search and filter those finds. Saved IDs stay in this browser and synchronize across tabs.
+- **Undo:** removing a saved item or clearing viewing history offers an Undo action. It stays available until dismissed, used, or replaced by the next removal/clear action. Undo also works inside product and comparison dialogs.
 - **Comparison:** select up to three products, then choose **Compare** in the floating tray to review their details side by side. Products can be removed or saved from the comparison.
 
 Desktop puts filters in a persistent sidebar. Phones use the same filter controls inside a native dialog, with an explicit close action and keyboard dismissal. Quick view and comparison also stay on the same page. Loading, empty results, an empty wishlist, invalid prices, and request failures each have a distinct state.
@@ -85,6 +98,8 @@ Search first checks exact normalized substrings across the current collection (a
 
 Similar products use catalogue data: the same category and a price range from 50% to 150% of the viewed price. Ties use higher rating, then product ID. Zero-priced items only suggest other zero-priced items. The section is omitted when no suitable alternatives exist. Gallery URLs are included in the initial metadata request, while the selected photo and thumbnails load when needed.
 
+The guided finder is a transparent shortcut into the same filter/sort pipeline. Empty-state suggestions test the smallest filter changes first, return at most three useful alternatives, and combine changes only when no single relaxation works. Their counts are computed from the same full collection being browsed, including the Saved collection when it is active. Highlighted text is rendered as React text nodes rather than injected HTML.
+
 ### Keep state and business rules small
 
 React owns the interface state without an additional state-management library. `src/lib/catalogue.ts` contains the shared product types, response validation, category derivation, price validation, and pure filtering/sorting functions. Components render those results rather than duplicating the selection logic. The desktop and mobile interfaces share the same filter component.
@@ -99,11 +114,13 @@ The wishlist stores only product IDs in `localStorage` under `form-field:saved-p
 
 Recently viewed uses a separate `form-field:recently-viewed:v1` key, also storing only validated IDs. It keeps at most eight entries and writes only after an explicit product open or history-clear action. Unavailable storage falls back to the current visit. Products no longer present in the catalogue are not displayed. This history is local to the browser and does not provide cross-device or simultaneous-tab synchronization.
 
+Undo holds only the most recent reversible removal in memory and does not survive a reload. Restoring a saved item adds that ID without replacing later changes. Restoring cleared history merges it behind products viewed since the clear, removes duplicates, and retains the eight-item limit. Feedback has no timeout, so keyboard and assistive-technology users have time to act.
+
 The comparison is intentionally temporary, with a maximum of three products to keep the table readable. It resets on reload. Grid/list selection and the Saved view are also session UI choices; shared URLs preserve filters and sorting, not private saved IDs or comparison selections.
 
 ### Make the catalogue easy to scan
 
-The visual direction pairs warm neutrals and forest green with a serif heading and a restrained sans-serif interface. Product images, names, prices, and ratings lead the card hierarchy. Category shortcuts provide visual entry points, and the comparison tray appears only when needed. Labels, focus indicators, native form controls, dialogs, and responsive spacing support keyboard and small-screen use. The comparison table scrolls within its own region on phones. Images load lazily where appropriate, and showing products in groups limits the initial DOM and image workload.
+The user-selected visual direction pairs a clean white canvas with cobalt blue actions, slate text, and self-hosted DM Sans typography. Shared color tokens keep cards, forms, dialogs, feedback, and focus states consistent. Product images, names, prices, and ratings lead the card hierarchy. Category shortcuts and the collapsible guided finder provide entry points without hiding search. Labels, native form controls, dialogs, and responsive spacing support keyboard and small-screen use. The comparison table scrolls within its own region on phones. Images load lazily where appropriate, and showing products in groups limits the initial DOM and image workload.
 
 Prices use **USD as a display assumption**: the API provides a numeric price without an explicit currency field. Prices are shown directly from the API; the application does not calculate an additional discount.
 
@@ -115,9 +132,9 @@ This is a catalogue, not a checkout flow. There is no cart, account, payment int
 
 ## Verification
 
-The automated checks focus on behavior: combining filters, inclusive price and rating boundaries, availability, exact-first typo matching, deterministic sorting, malformed API data, gallery URLs, related-product budgets, and stored-ID validation. Browser tests exercise the desktop and mobile experience, including keyboard suggestions, brand URLs, viewing history and storage failures, gallery navigation and zoom, image recovery, same-page alternatives, saved products, comparison, and layout selection. They use controlled API responses so failures can be reproduced without depending on the live dataset changing.
+The automated checks focus on behavior: combining filters, inclusive price and rating boundaries, availability, exact-first typo matching, deterministic sorting, response validation, gallery URLs, related-product budgets, stored-ID validation, recovery suggestions, safe highlighting, and product links. Browser tests exercise desktop and mobile, including finder validation, filter recovery, copied links and clipboard fallback, direct-link loading, sample reviews, undo inside and outside dialogs, search, history, gallery, comparison, and layout selection. They use controlled API responses so failures can be reproduced without depending on the live dataset changing.
 
-Verified locally: **97 unit tests**, **57 browser tests**, and **2 live API smoke tests** pass. The browser suite includes automated axe checks of the catalogue, search suggestions, filters, gallery, zoom, quick view, and comparison dialogs against WCAG A/AA rules; these checks report no violations. Automated checks complement keyboard and visual review; they do not constitute comprehensive accessibility certification.
+Verified locally: **141 unit tests**, **81 browser tests**, and **2 live API smoke tests** pass. The browser suite includes automated axe checks of the catalogue, search suggestions, filters, finder, recovery, feedback, reviews, gallery, zoom, quick view, and comparison against WCAG A/AA rules; these checks report no violations. Automated checks complement keyboard and visual review; they do not constitute comprehensive accessibility certification.
 
 The normal browser run skips the live API tests and the phone-only dialog test on desktop. To run the live smoke checks (which also capture desktop and mobile screenshots):
 
@@ -139,6 +156,10 @@ Useful manual checks:
 10. Search for `lipstik`, select a suggestion with the arrow keys and Enter, then combine a brand and budget.
 11. Open a product with multiple photos, switch images, and zoom; try the gallery on a phone as well.
 12. Open a similar product, close the dialog, and reopen it from Recently viewed. Reload to check history, then clear it.
+13. Use Help me choose with a category, budget, and priority; confirm it replaces the previous filters as described.
+14. Create an empty result with a restrictive brand or price, then try a suggested adjustment and check that other filters remain.
+15. Copy a product link, open it in another tab, and confirm the product opens directly. Close details and check that the filters remain.
+16. Remove a saved item and Undo it. Clear recent history, open another product, then Undo the clear and check that both the newer and restored history remain.
 
 ## Deployment
 
