@@ -98,7 +98,6 @@ export default function App() {
         : `${count} ${count === 1 ? 'product' : 'products'}${hasFilters ? ` of ${sourceProducts.length}` : ' to explore'}`;
   const filterProps = {
     categories,
-    total: products.length,
     filters,
     onChange: setFilter,
     priceError,

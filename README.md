@@ -66,7 +66,7 @@ Desktop puts filters in a persistent sidebar. Phones use the same filter control
 
 ### Fetch the whole catalogue, then filter locally
 
-[DummyJSON's products endpoint](https://dummyjson.com/docs/products) returns only 30 items by default. The application requests `limit=0` and selects the fields it needs, so searching and filtering cover the entire catalogue. Categories and their counts are derived from the returned data rather than maintained as a separate list.
+[DummyJSON's products endpoint](https://dummyjson.com/docs/products) returns only 30 items by default. The application requests `limit=0` and selects the fields it needs, so searching and filtering cover the entire catalogue. Categories are derived from the returned data rather than maintained as a separate list.
 
 For a few hundred items, a single fetch and a local filter/sort pipeline keep interactions immediate and make combined conditions straightforward. This deliberately avoids server requests on every keystroke. For a much larger catalogue, I would move filtering, sorting, and pagination to an API with matching semantics, plus request cancellation and caching.
 

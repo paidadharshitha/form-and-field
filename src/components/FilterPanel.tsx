@@ -4,7 +4,6 @@ import { type Category, type Filters } from '../lib/catalogue';
 
 interface FilterPanelProps {
   categories: Category[];
-  total: number;
   filters: Filters;
   onChange: <K extends keyof Filters>(key: K, value: Filters[K]) => void;
   priceError: string | null;
@@ -12,7 +11,6 @@ interface FilterPanelProps {
 
 export function FilterPanel({
   categories,
-  total,
   filters,
   onChange,
   priceError,
@@ -26,7 +24,7 @@ export function FilterPanel({
   if (!expanded && selectedIndex >= 7)
     visibleCategories.push(categories[selectedIndex]);
   const categoryOptions = [
-    { value: '', label: 'All categories', count: total },
+    { value: '', label: 'All categories' },
     ...visibleCategories,
   ];
 
@@ -48,7 +46,6 @@ export function FilterPanel({
                 onChange={() => onChange('category', category.value)}
               />
               <span>{category.label}</span>
-              <span className="category-count">{category.count}</span>
             </label>
           ))}
         </div>

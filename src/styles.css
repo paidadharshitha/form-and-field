@@ -378,15 +378,6 @@ fieldset legend {
   border: 4px solid var(--green);
   background: white;
 }
-.category-count {
-  margin-left: auto;
-  color: #65705d;
-  font-size: 10px;
-  font-variant-numeric: tabular-nums;
-}
-.is-selected .category-count {
-  color: var(--green);
-}
 .category-toggle {
   display: flex;
   align-items: center;
@@ -893,9 +884,6 @@ fieldset legend {
 .mobile-filter-dialog .category-option {
   min-height: 44px;
   font-size: 13px;
-}
-.mobile-filter-dialog .category-count {
-  font-size: 12px;
 }
 .mobile-filter-dialog fieldset legend {
   font-size: 14px;
