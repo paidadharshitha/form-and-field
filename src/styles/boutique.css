@@ -74,12 +74,6 @@
   display: block;
   font-weight: inherit;
 }
-.intro-story > p {
-  margin-top: 20px;
-  font-size: 14px;
-  line-height: 1.7;
-  color: var(--muted);
-}
 .intro-search {
   grid-column: 1;
   grid-row: 2;
@@ -208,9 +202,6 @@
   .intro-story h1 {
     font-size: clamp(59px, 7vw, 76px);
   }
-  .intro-story > p {
-    font-size: 13px;
-  }
   .boutique-intro .category-spotlights {
     gap: 14px;
   }
@@ -233,10 +224,6 @@
   }
   .intro-story {
     padding-bottom: 18px;
-  }
-  .intro-story > p {
-    max-width: 28ch;
-    margin-top: 16px;
   }
   .boutique-intro .category-spotlights {
     gap: 12px;
@@ -279,11 +266,6 @@
   }
   .intro-story h1 {
     font-size: clamp(47px, 12.4vw, 67px);
-  }
-  .intro-story > p {
-    max-width: none;
-    margin-top: 12px;
-    font-size: 12px;
   }
   .intro-search .search-field {
     height: 52px;

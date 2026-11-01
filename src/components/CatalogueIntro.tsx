@@ -33,7 +33,6 @@ export function CatalogueIntro({
         <h1 id="page-title">
           Good things.<em>Easy to find.</em>
         </h1>
-        <p>Everyday essentials. Unexpected favourites.</p>
       </div>
       <div className="intro-search">
         <SearchBar
